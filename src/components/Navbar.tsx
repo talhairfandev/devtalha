@@ -49,6 +49,21 @@ export default function Navbar() {
     };
   }, [isMenuOpen]);
 
+  const handleNavLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string, label: string) => {
+    if (label === "CONTACT" || href.endsWith("#contact")) {
+      e.preventDefault();
+      setIsMenuOpen(false);
+      if (pathname !== "/") {
+        window.location.href = "/#contact";
+      } else {
+        if (window.location.hash !== "#contact") {
+          window.history.pushState(null, "", "#contact");
+        }
+        window.dispatchEvent(new CustomEvent("open-contact-modal"));
+      }
+    }
+  };
+
   return (
     <>
       <motion.header
@@ -124,6 +139,7 @@ export default function Navbar() {
               <MagneticWrapper key={link.label}>
                 <Link
                   href={link.href}
+                  onClick={(e) => handleNavLinkClick(e, link.href, link.label)}
                   className="text-[14px] font-bold uppercase tracking-normal transition-opacity whitespace-nowrap"
                 >
                   <RollText>{link.label}</RollText>
@@ -182,7 +198,7 @@ export default function Navbar() {
                 >
                   <Link
                     href={link.href}
-                    onClick={() => setIsMenuOpen(false)}
+                    onClick={(e) => handleNavLinkClick(e, link.href, link.label)}
                     className="text-4xl font-medium tracking-tighter text-white hover:text-white/60 transition-colors"
                   >
                     {link.label}
@@ -196,7 +212,7 @@ export default function Navbar() {
               >
                 <Link
                   href="/#contact"
-                  onClick={() => setIsMenuOpen(false)}
+                  onClick={(e) => handleNavLinkClick(e, "/#contact", "CONTACT")}
                   className="mt-8 inline-block bg-white text-black px-10 py-4 text-[12px] font-bold uppercase tracking-[0.25em] hover:bg-gray-200 transition-colors"
                 >
                   CONTACT US

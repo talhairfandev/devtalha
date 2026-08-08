@@ -33,6 +33,20 @@ export default function Footer({ data }: { data?: FooterSection | null }) {
     ? "w-full sm:w-auto text-zinc-900 px-4 py-[18px] text-[11px] font-bold uppercase tracking-[0.2em] hover:text-zinc-700 transition-colors"
     : "w-full sm:w-auto text-white px-4 py-[18px] text-[11px] font-bold uppercase tracking-[0.2em] hover:text-white/60 transition-colors";
 
+  const handleContactClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    if (typeof window !== "undefined") {
+      if (window.location.pathname !== "/") {
+        window.location.href = "/#contact";
+      } else {
+        if (window.location.hash !== "#contact") {
+          window.history.pushState(null, "", "#contact");
+        }
+        window.dispatchEvent(new CustomEvent("open-contact-modal"));
+      }
+    }
+  };
+
   return (
     <footer className="w-full cv-auto mt-20 relative z-10 section-dark">
       <div className="relative w-full bg-[#000000] overflow-hidden pt-24 pb-12">
@@ -100,7 +114,7 @@ export default function Footer({ data }: { data?: FooterSection | null }) {
                   <li><a href="/#work" className={linkClass}>Projects</a></li>
                   <li><a href="/#services" className={linkClass}>Services</a></li>
                   <li><a href="/#process" className={linkClass}>Process</a></li>
-                  <li><a href="/#contact" className={linkClass}>Contact</a></li>
+                  <li><a href="/#contact" onClick={handleContactClick} className={linkClass}>Contact</a></li>
                 </ul>
               </div>
 
