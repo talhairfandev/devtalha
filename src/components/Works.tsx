@@ -76,11 +76,11 @@ function StackedCard({
               src={work.imageUrl}
               alt={work.title}
               fill
-              priority={index < 2}
+              priority={false}
               className="object-cover transition-transform duration-700 ease-out scale-100 group-hover:scale-[1.02]"
               videoClassName="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out scale-100 group-hover:scale-[1.02]"
-              sizes="100vw"
-              quality={90}
+              sizes="(max-width: 768px) 100vw, (max-width: 1280px) 90vw, 1180px"
+              quality={80}
             />
             {/* Light Subtle Ambient Overlay */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
@@ -143,8 +143,8 @@ function MobileProjectCard({
             src={work.imageUrl}
             alt={work.title}
             fill
-            sizes="85vw"
-            quality={85}
+            sizes="(max-width: 640px) 85vw, 380px"
+            quality={80}
             className="object-cover"
             videoClassName="absolute inset-0 h-full w-full object-cover"
           />

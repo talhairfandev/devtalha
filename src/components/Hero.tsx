@@ -197,9 +197,9 @@ export default function Hero({ data }: { data?: HeroSection | null }) {
                       fill
                       priority
                       fetchPriority="high"
-                      quality={80}
+                      quality={85}
                       className="object-cover animate-none"
-                      sizes="(max-width: 768px) 100vw, calc(100vw - 1rem)"
+                      sizes="100vw"
                       onLoad={() => setIsDesktopLoaded(true)}
                     />
                   </div>
@@ -239,6 +239,9 @@ export default function Hero({ data }: { data?: HeroSection | null }) {
           className="relative z-10 w-full pointer-events-none"
           style={{ y: textY }}
         >
+          <h1 className="sr-only">
+            {heading ? `${heading} — Talha Irfan Full-Stack Web Developer` : "Talha Irfan — Full-Stack Web Developer"}
+          </h1>
           <div className="flex flex-col items-start text-left w-full">
             {/* Sliding/Blurring Heading Reveal - Infinite Velocity Marquee */}
             <motion.div

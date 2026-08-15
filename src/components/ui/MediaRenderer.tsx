@@ -124,6 +124,7 @@ const MediaRenderer = forwardRef<HTMLVideoElement, MediaRendererProps>(
         sizes={sizes}
         quality={getValidQuality(quality)}
         priority={priority}
+        loading={priority ? undefined : "lazy"}
         fetchPriority={fetchPriority}
         unoptimized={unoptimized}
         className={className ?? "object-cover"}

@@ -51,11 +51,15 @@
 - Deferred works hover images until user interaction.
 - Lowered quality for non-critical images in services/works.
 - Reduced hover animations in works when reduced-motion is preferred.
-- Added preconnect hints for remote image hosts.
+- Added preconnect and dns-prefetch hints for remote image hosts.
 - Disabled hover and scroll transforms on mobile for works/services/process/reachus/hero/section parallax.
 - Added smart lazy-loading for off-screen videos via IntersectionObserver in MediaRenderer to eliminate redundant initial network/decoding load.
+- Enabled gzip/brotli compression and stripped x-powered-by header in Next.js config.
+- Tuned Next.js image deviceSizes, imageSizes, and 1-year minimumCacheTTL.
+- Prioritized Hero LCP image and demoted below-the-fold stacked card priority to prevent network bandwidth contention.
+- Optimized responsive image sizes expressions across Hero, Works cards, and Project detail exhibits to eliminate overfetching.
 
 ## Validation
-- Re-run Lighthouse and compare metrics.
-- Spot check on mobile for scroll smoothness.
+- Run TypeScript typecheck to verify zero type regressions.
+- Spot check on mobile and desktop for scroll smoothness and visual fidelity.
 - Verify no regression in layout or navigation.

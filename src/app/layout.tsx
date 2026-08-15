@@ -16,9 +16,127 @@ const spaceGrotesk = Space_Grotesk({
   display: "swap",
 });
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://talha-irfan.vercel.app";
+
 export const metadata: Metadata = {
-  title: "Talha Irfan — Web Developer",
-  description: "Premium portfolio — Web development, modern frameworks, and AI-accelerated workflows.",
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: "Talha Irfan — Full-Stack Web Developer",
+    template: "%s | Talha Irfan",
+  },
+  description:
+    "Talha Irfan is a Full-Stack Web Developer specializing in Next.js, React, Node.js, and Supabase. Building high-performance, modern web applications and interactive UI experiences.",
+  keywords: [
+    "Talha Irfan",
+    "Full-Stack Web Developer",
+    "Next.js Developer",
+    "React Developer",
+    "Node.js Developer",
+    "Supabase Developer",
+    "TypeScript",
+    "Frontend Engineer",
+    "Web Developer Portfolio",
+    "UI/UX Web Developer",
+  ],
+  authors: [{ name: "Talha Irfan", url: siteUrl }],
+  creator: "Talha Irfan",
+  publisher: "Talha Irfan",
+  alternates: {
+    canonical: "/",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: siteUrl,
+    siteName: "Talha Irfan — Portfolio",
+    title: "Talha Irfan — Full-Stack Web Developer",
+    description:
+      "Full-Stack Web Developer specializing in Next.js, React, Node.js, and Supabase. Building high-performance, modern web applications.",
+    images: [
+      {
+        url: "/api/og",
+        width: 1200,
+        height: 630,
+        alt: "Talha Irfan — Full-Stack Web Developer",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Talha Irfan — Full-Stack Web Developer",
+    description:
+      "Full-Stack Web Developer specializing in Next.js, React, Node.js, and Supabase.",
+    images: ["/api/og"],
+  },
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || "",
+  },
+};
+
+const jsonLdData = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Person",
+      "@id": `${siteUrl}/#person`,
+      name: "Talha Irfan",
+      url: siteUrl,
+      jobTitle: "Full-Stack Web Developer",
+      knowsAbout: [
+        "Next.js",
+        "React",
+        "Node.js",
+        "TypeScript",
+        "Supabase",
+        "Tailwind CSS",
+        "Web Development",
+        "Frontend Engineering",
+      ],
+      hasOfferCatalog: {
+        "@type": "OfferCatalog",
+        name: "Web Development Services",
+        itemListElement: [
+          {
+            "@type": "Offer",
+            itemOffered: {
+              "@type": "Service",
+              name: "Full-Stack Web Application Development",
+              description: "Building production-ready, scalable web applications with Next.js, React, Node.js, and Supabase.",
+            },
+          },
+          {
+            "@type": "Offer",
+            itemOffered: {
+              "@type": "Service",
+              name: "Frontend Architecture & Animated Experiences",
+              description: "Crafting modern user interfaces with Framer Motion, GSAP, Tailwind CSS, and responsive layouts.",
+            },
+          },
+        ],
+      },
+    },
+    {
+      "@type": "WebSite",
+      "@id": `${siteUrl}/#website`,
+      url: siteUrl,
+      name: "Talha Irfan Portfolio",
+      description: "Full-Stack Web Developer portfolio showcasing web applications, projects, and design systems.",
+      publisher: {
+        "@id": `${siteUrl}/#person`,
+      },
+    },
+  ],
 };
 
 export default async function RootLayout({
@@ -38,9 +156,15 @@ export default async function RootLayout({
     >
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        {/* Preconnect to essential origins only (Max 2 origins to prevent warnings) */}
-        <link rel="preconnect" href="https://fregldukggdkbemysbho.supabase.co" />
-        <link rel="preconnect" href="https://images.unsplash.com" />
+        {/* Preconnect & DNS-Prefetch to essential origins */}
+        <link rel="preconnect" href="https://fregldukggdkbemysbho.supabase.co" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://fregldukggdkbemysbho.supabase.co" />
+        <link rel="preconnect" href="https://images.unsplash.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://images.unsplash.com" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdData) }}
+        />
         <script
           dangerouslySetInnerHTML={{
             __html: `
