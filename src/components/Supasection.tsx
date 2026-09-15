@@ -31,13 +31,14 @@ export default function Supasection({ data }: { data?: SupasectionSection | null
   const headerOpacity = useTransform(smoothProgress, [0.12, 0.30], [1, 0]);
   const headerScale = useTransform(smoothProgress, [0.12, 0.30], [1, 0.95]);
 
-  // Image scaling from 0 to 1 after drawing completes (progress 0.55 to 0.90) (using smoothProgress)
-  const imageScale = useTransform(smoothProgress, [0.55, 0.90], [0, 1], { clamp: true });
+  // Image scaling from 0 to 1 as SVG finishes (0.52 to 0.70)
+  // Maintains full-screen scale steadily from 0.70 to 1.0 (long hold before unpinning)
+  const imageScale = useTransform(smoothProgress, [0.52, 0.70], [0, 1], { clamp: true });
 
   return (
     <section
       ref={containerRef}
-      className="relative mx-auto h-[280vh] md:h-[400vh] w-full bg-background text-foreground transition-colors duration-500"
+      className="relative mx-auto h-[400vh] md:h-[550vh] w-full bg-background text-foreground transition-colors duration-500"
     >
       {/* Sticky Viewport Wrapper - Pinned/Locked container */}
       <div className="sticky top-0 h-screen w-full overflow-hidden flex flex-col items-center justify-center">
