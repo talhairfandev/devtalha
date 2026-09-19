@@ -78,7 +78,7 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
     ? works[(currentIndex + 1) % works.length]
     : null;
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://talha-irfan.vercel.app";
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://talhairfandev.me";
 
   const projectJsonLd = {
     "@context": "https://schema.org",

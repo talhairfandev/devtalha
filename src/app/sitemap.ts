@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { getWorks } from "@/lib/queries";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://talha-irfan.vercel.app";
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://talhairfandev.me";
 
   const staticRoutes: MetadataRoute.Sitemap = [
     {
