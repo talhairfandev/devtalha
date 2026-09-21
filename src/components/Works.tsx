@@ -39,11 +39,9 @@ type WorksProps = {
 function GalleryPanel({
   work,
   index,
-  total,
 }: {
   work: WorkCardData;
   index: number;
-  total: number;
 }) {
   return (
     <article
@@ -88,16 +86,13 @@ function GalleryPanel({
           <span className="absolute bottom-5 right-5 w-6 h-6 border-b border-r border-white/40 group-hover:w-9 group-hover:h-9 group-hover:border-white transition-all duration-500 pointer-events-none" />
 
           {/* Top meta bar */}
-          <div className="relative z-10 flex items-center justify-between p-7 sm:p-9">
-            <span className="text-white/70 font-mono text-[10px] sm:text-xs font-semibold tracking-[0.3em] uppercase">
-              {String(index + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
-            </span>
-            {work.client && (
+          {work.client ? (
+            <div className="relative z-10 flex items-center justify-end p-7 sm:p-9">
               <span className="text-white/60 font-mono text-[10px] sm:text-xs font-medium tracking-[0.25em] uppercase bg-white/5 backdrop-blur-md px-3 py-1 rounded-full border border-white/10">
                 {work.client}
               </span>
-            )}
-          </div>
+            </div>
+          ) : null}
 
           {/* Bottom info */}
           <div className="absolute bottom-0 left-0 right-0 z-10 flex items-end justify-between gap-4 p-7 sm:p-9">
@@ -138,12 +133,8 @@ function GalleryPanel({
 // ---------------------------------------------------------------------------
 function MobileProjectCard({
   work,
-  index,
-  total,
 }: {
   work: WorkCardData;
-  index: number;
-  total: number;
 }) {
   return (
     <div className="gsap-works-mobile-card snap-center w-[85vw] sm:w-[380px] shrink-0 h-[440px] rounded-2xl overflow-hidden bg-neutral-950 border border-white/15 relative flex flex-col justify-between p-6 group cursor-pointer shadow-lg">
@@ -165,16 +156,13 @@ function MobileProjectCard({
           <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-black/20 pointer-events-none" />
         </div>
 
-        <div className="relative z-10 flex items-center justify-between">
-          <span className="text-white/80 font-mono text-[10px] font-medium tracking-widest uppercase bg-black/40 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/10">
-            {String(index + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
-          </span>
-          {work.client && (
+        {work.client ? (
+          <div className="relative z-10 flex items-center justify-end">
             <span className="text-white/80 font-mono text-[10px] font-medium tracking-widest uppercase bg-black/40 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/10 truncate max-w-[140px]">
               {work.client}
             </span>
-          )}
-        </div>
+          </div>
+        ) : null}
 
         <div className="relative z-10 flex items-end justify-between gap-3">
           <div>
@@ -220,7 +208,6 @@ export default function Works({
   const pinRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
-  const ghostRef = useRef<HTMLDivElement>(null);
   const mobileTrackRef = useRef<HTMLDivElement>(null);
   const ctaRef = useRef<HTMLDivElement>(null);
 
@@ -277,32 +264,6 @@ export default function Works({
                 // Progress bar
                 if (progressRef.current) {
                   gsap.set(progressRef.current, { scaleX: self.progress });
-                }
-                // Ghost numeral tracks the active panel
-                if (ghostRef.current) {
-                  const active = Math.min(
-                    panels.length - 1,
-                    Math.round(self.progress * (panels.length - 1))
-                  );
-                  const el = ghostRef.current;
-                  const next = String(active + 1).padStart(2, "0");
-                  if (el.dataset.val !== next) {
-                    el.dataset.val = next;
-                    gsap.fromTo(
-                      el,
-                      { yPercent: 12, autoAlpha: 0.25 },
-                      {
-                        yPercent: 0,
-                        autoAlpha: 0.9,
-                        duration: 0.6,
-                        ease: "power3.out",
-                        overwrite: true,
-                        onStart: () => {
-                          el.textContent = next;
-                        },
-                      }
-                    );
-                  }
                 }
                 // Skew from scroll velocity
                 const v = gsap.utils.clamp(-12, 12, self.getVelocity() / -260);
@@ -523,27 +484,16 @@ export default function Works({
         ref={mobileTrackRef}
         className="flex md:hidden overflow-x-auto snap-x snap-mandatory scrollbar-none gap-4 px-4 pb-14"
       >
-        {visibleWorks.map((work, index) => (
+        {visibleWorks.map((work) => (
           <MobileProjectCard
             key={work.id}
             work={work}
-            index={index}
-            total={visibleWorks.length}
           />
         ))}
       </div>
 
       {/* DESKTOP LAYOUT: GSAP horizontal pinned gallery */}
       <div ref={pinRef} className="hidden md:block relative w-full overflow-hidden h-screen">
-        {/* Giant ghost numeral in the background */}
-        <div
-          ref={ghostRef}
-          data-val="01"
-          aria-hidden
-          className="pointer-events-none absolute -bottom-[6vh] left-1/2 -translate-x-1/2 font-display font-semibold text-foreground/[0.045] leading-none tracking-tighter text-[42vw] md:text-[36vw] lg:text-[30vw] will-change-transform"
-        >
-          01
-        </div>
 
         {/* Scroll progress bar */}
         <div className="absolute top-0 left-0 right-0 h-[3px] bg-white/5 z-20">
@@ -566,7 +516,6 @@ export default function Works({
                 key={work.id}
                 work={work}
                 index={index}
-                total={visibleWorks.length}
               />
             ))}
 
@@ -594,14 +543,6 @@ export default function Works({
           </div>
         </div>
 
-        {/* Live active-project readout */}
-        <div className="pointer-events-none absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex items-center gap-3 text-muted-foreground">
-          <span className="h-px w-10 bg-muted-foreground/40" />
-          <span className="font-mono text-[10px] font-bold uppercase tracking-[0.3em]">
-            DRAG · SCROLL · EXPLORE
-          </span>
-          <span className="h-px w-10 bg-muted-foreground/40" />
-        </div>
       </div>
 
       {/* Mobile bottom CTA */}
