@@ -24,8 +24,8 @@ export default function Footer({ data }: { data?: FooterSection | null }) {
     : "text-zinc-300 text-[15px] font-medium hover:text-white transition-colors";
   const metaTitleClass = isDarkTextTheme ? "text-zinc-700" : "text-zinc-500";
   const legalClass = isDarkTextTheme
-    ? "w-full flex flex-col md:flex-row justify-between items-center gap-6 text-[11px] tracking-widest text-zinc-700 font-bold uppercase pt-8 border-t border-black/15"
-    : "w-full flex flex-col md:flex-row justify-between items-center gap-6 text-[11px] tracking-widest text-zinc-500 font-bold uppercase pt-8 border-t border-white/10";
+    ? "w-full flex justify-center items-center text-[11px] tracking-widest text-zinc-700 font-bold uppercase pt-8 border-t border-black/15 text-center"
+    : "w-full flex justify-center items-center text-[11px] tracking-widest text-zinc-500 font-bold uppercase pt-8 border-t border-white/10 text-center";
   const inputClass = isDarkTextTheme
     ? "flex-grow bg-transparent text-zinc-900 rounded-none px-0 py-[18px] text-sm focus:outline-none transition-colors placeholder:text-zinc-600 font-medium"
     : "flex-grow bg-transparent text-white rounded-none px-0 py-[18px] text-sm focus:outline-none transition-colors placeholder:text-zinc-500 font-medium";
@@ -124,10 +124,10 @@ export default function Footer({ data }: { data?: FooterSection | null }) {
                   Social
                 </h4>
                 <ul className="flex flex-col gap-5">
-                  <li><a href="#" className={linkClass}>Twitter / X</a></li>
-                  <li><a href="#" className={linkClass}>Instagram</a></li>
-                  <li><a href="#" className={linkClass}>LinkedIn</a></li>
-                  <li><a href="#" className={linkClass}>GitHub</a></li>
+                  <li><a href="https://x.com/talhafrompak" target="_blank" rel="noopener noreferrer" className={linkClass}>Twitter / X</a></li>
+                  <li><a href="https://www.instagram.com/talhairfandev" target="_blank" rel="noopener noreferrer" className={linkClass}>Instagram</a></li>
+                  <li><a href="https://www.linkedin.com/in/talha-irfan-a98808252/" target="_blank" rel="noopener noreferrer" className={linkClass}>LinkedIn</a></li>
+                  <li><a href="https://github.com/talhairfandev" target="_blank" rel="noopener noreferrer" className={linkClass}>GitHub</a></li>
                 </ul>
               </div>
 
@@ -183,11 +183,7 @@ export default function Footer({ data }: { data?: FooterSection | null }) {
         <div className="relative z-10 container mx-auto px-6 md:px-8 max-w-7xl">
           {/* Bottom Section: Legal & Credits */}
           <div className={legalClass}>
-            <div className="flex gap-12">
-              <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
-              <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
-            </div>
-            <div className="text-center md:text-right">
+            <div>
               © 2026 TALHA IRFAN — ALL RIGHTS RESERVED
             </div>
           </div>
