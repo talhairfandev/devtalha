@@ -155,9 +155,9 @@ export default function Footer({ data }: { data?: FooterSection | null }) {
                 transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
                 className="w-full relative flex justify-between items-end select-none"
               >
-                <h1 className={`text-[25vw] leading-[0.8] font-medium tracking-[-0.05em] m-0 p-0 ${headingClass}`}>
+                <div className={`text-[25vw] leading-[0.8] font-medium tracking-[-0.05em] m-0 p-0 ${headingClass}`}>
                   {brandName}
-                </h1>
+                </div>
 
                 <div className="relative pb-[1.5vw] pr-[1vw]">
                   <span className={`text-[13vw] leading-[0.8] font-bold m-0 p-0 ${headingClass}`}>

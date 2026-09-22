@@ -32,6 +32,19 @@ const nextConfig: NextConfig = {
     qualities: [70, 80, 85, 90],
   },
   allowedDevOrigins: ['192.168.100.224'],
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'Vary',
+            value: 'Accept',
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;

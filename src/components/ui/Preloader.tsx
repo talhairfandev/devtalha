@@ -84,7 +84,8 @@ export default function Preloader() {
       <div className="z-20 pointer-events-auto flex items-center justify-center px-4 overflow-hidden">
         <AnimatePresence>
           {status === "active" && (
-            <motion.h1
+            <motion.div
+              role="status"
               initial="hidden"
               animate="visible"
               exit="exit"
@@ -130,7 +131,7 @@ export default function Preloader() {
                   </span>
                 );
               })}
-            </motion.h1>
+            </motion.div>
           )}
         </AnimatePresence>
       </div>

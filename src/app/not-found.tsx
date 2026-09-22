@@ -13,17 +13,37 @@ export default function NotFound() {
           Page not found
         </h1>
 
-        <p className="text-muted-foreground text-sm sm:text-base mb-8 leading-relaxed font-sans">
+        <p className="text-muted-foreground text-sm sm:text-base mb-6 leading-relaxed font-sans">
           The page you are looking for doesn&apos;t exist or has been moved.
         </p>
 
-        <Link
-          href="/"
-          className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-foreground text-background font-medium text-sm transition-opacity hover:opacity-90"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span>Back to Home</span>
-        </Link>
+        <div className="flex flex-wrap items-center justify-center gap-3 mb-8">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-foreground text-background font-medium text-xs transition-opacity hover:opacity-90"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>Home</span>
+          </Link>
+          <Link
+            href="/projects"
+            className="inline-flex items-center px-4 py-2.5 rounded-full border border-border text-foreground font-medium text-xs hover:bg-muted transition-colors"
+          >
+            Projects
+          </Link>
+          <Link
+            href="/sitemap.xml"
+            className="inline-flex items-center px-4 py-2.5 rounded-full border border-border text-foreground font-medium text-xs hover:bg-muted transition-colors"
+          >
+            Sitemap
+          </Link>
+          <Link
+            href="/llms.txt"
+            className="inline-flex items-center px-4 py-2.5 rounded-full border border-border text-foreground font-medium text-xs hover:bg-muted transition-colors"
+          >
+            llms.txt
+          </Link>
+        </div>
       </div>
     </div>
   );

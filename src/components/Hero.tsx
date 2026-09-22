@@ -239,9 +239,9 @@ export default function Hero({ data }: { data?: HeroSection | null }) {
           className="relative z-10 w-full pointer-events-none"
           style={{ y: textY }}
         >
-          <h1 className="sr-only">
+          <div className="sr-only">
             {heading ? `${heading} — Talha Irfan Full-Stack Web Developer` : "Talha Irfan — Full-Stack Web Developer"}
-          </h1>
+          </div>
           <div className="flex flex-col items-start text-left w-full">
             {/* Sliding/Blurring Heading Reveal - Infinite Velocity Marquee */}
             <motion.div

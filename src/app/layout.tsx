@@ -79,6 +79,16 @@ export const metadata: Metadata = {
       "Full-Stack Web Developer specializing in Next.js, React, Node.js, and Supabase.",
     images: ["/api/og"],
   },
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico", sizes: "any" },
+    ],
+    apple: "/apple-touch-icon.png",
+  },
+  other: {
+    "llms-txt": `${siteUrl}/llms.txt`,
+  },
   verification: {
     google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || "",
   },
@@ -91,8 +101,16 @@ const jsonLdData = {
       "@type": "Person",
       "@id": `${siteUrl}/#person`,
       name: "Talha Irfan",
+      alternateName: ["talhairfandev", "Talha Irfan Portfolio", "Talha Irfan Web Developer", "Talha Irfan Dev"],
       url: siteUrl,
-      jobTitle: "Full-Stack Web Developer",
+      email: "mailto:talhairfan.dev@gmail.com",
+      jobTitle: "Full-Stack Web Developer & Creative Engineer",
+      sameAs: [
+        "https://github.com/talhairfandev",
+        "https://www.linkedin.com/in/talha-irfan-a98808252/",
+        "https://x.com/talhafrompak",
+        "https://www.instagram.com/talhairfandev"
+      ],
       knowsAbout: [
         "Next.js",
         "React",
@@ -102,6 +120,9 @@ const jsonLdData = {
         "Tailwind CSS",
         "Web Development",
         "Frontend Engineering",
+        "Creative Development",
+        "GSAP",
+        "Framer Motion"
       ],
       hasOfferCatalog: {
         "@type": "OfferCatalog",
@@ -130,9 +151,19 @@ const jsonLdData = {
       "@type": "WebSite",
       "@id": `${siteUrl}/#website`,
       url: siteUrl,
-      name: "Talha Irfan Portfolio",
+      name: "Talha Irfan — Portfolio",
+      alternateName: ["Talha Irfan Portfolio", "talhairfandev.me", "Talha Irfan Dev"],
       description: "Full-Stack Web Developer portfolio showcasing web applications, projects, and design systems.",
       publisher: {
+        "@id": `${siteUrl}/#person`,
+      },
+    },
+    {
+      "@type": "ProfilePage",
+      "@id": `${siteUrl}/#profilepage`,
+      url: siteUrl,
+      name: "Talha Irfan — Portfolio",
+      mainEntity: {
         "@id": `${siteUrl}/#person`,
       },
     },
