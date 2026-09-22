@@ -120,8 +120,9 @@ async function runTests() {
   console.log(`\n--- 5. Testing Brand Name Discoverability & Structured Data ---`);
   try {
     const res = await fetchReq('/', { Accept: 'text/html' });
+    assert('HTML contains WebSite Brand schema with talhairfandev', res.body.includes('WebSite') && res.body.includes('talhairfandev'), 'Missing WebSite Brand schema');
     assert('HTML contains Person schema with Talha Irfan', res.body.includes('"@type":"Person"') && res.body.includes('Talha Irfan'), 'Missing Person schema');
-    assert('HTML contains alternateName array for brand discovery', res.body.includes('talhairfandev') && res.body.includes('Talha Irfan Portfolio'), 'Missing alternateName');
+    assert('HTML contains alternateName array for brand discovery', res.body.includes('talhairfandev') && res.body.includes('Talha Irfan'), 'Missing alternateName');
     assert('HTML contains sameAs links to claimed profiles', res.body.includes('https://github.com/talhairfandev') && res.body.includes('linkedin.com/in/talha-irfan'), 'Missing sameAs links');
     assert('HTML links to /llms.txt in metadata', res.body.includes('llms.txt'), 'Missing llms.txt link in head/metadata');
   } catch (err) {

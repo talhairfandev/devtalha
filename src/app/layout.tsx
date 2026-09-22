@@ -21,26 +21,31 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://talhairfandev.me";
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Talha Irfan — Full-Stack Web Developer",
-    template: "%s | Talha Irfan",
+    default: "talhairfandev — Talha Irfan | Full-Stack Web Developer & Creative Engineer",
+    template: "%s | talhairfandev",
   },
   description:
-    "Talha Irfan is a Full-Stack Web Developer specializing in Next.js, React, Node.js, and Supabase. Building high-performance, modern web applications and interactive UI experiences.",
+    "Official portfolio of talhairfandev (Talha Irfan) — Full-Stack Web Developer & Creative Engineer specializing in Next.js, React, Node.js, and Supabase. Building high-performance, modern web applications.",
   keywords: [
+    "talhairfandev",
     "Talha Irfan",
+    "talhairfandev portfolio",
+    "Talha Irfan Web Developer",
+    "talhairfandev.me",
     "Full-Stack Web Developer",
+    "Creative Engineer",
     "Next.js Developer",
     "React Developer",
     "Node.js Developer",
     "Supabase Developer",
-    "TypeScript",
+    "TypeScript Developer",
     "Frontend Engineer",
     "Web Developer Portfolio",
     "UI/UX Web Developer",
   ],
-  authors: [{ name: "Talha Irfan", url: siteUrl }],
+  authors: [{ name: "Talha Irfan (talhairfandev)", url: siteUrl }],
   creator: "Talha Irfan",
-  publisher: "Talha Irfan",
+  publisher: "talhairfandev",
   alternates: {
     canonical: "/",
   },
@@ -59,24 +64,24 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: siteUrl,
-    siteName: "Talha Irfan — Portfolio",
-    title: "Talha Irfan — Full-Stack Web Developer",
+    siteName: "talhairfandev — Talha Irfan",
+    title: "talhairfandev — Talha Irfan | Full-Stack Web Developer & Creative Engineer",
     description:
-      "Full-Stack Web Developer specializing in Next.js, React, Node.js, and Supabase. Building high-performance, modern web applications.",
+      "Official portfolio of talhairfandev (Talha Irfan) — Full-Stack Web Developer & Creative Engineer specializing in Next.js, React, Node.js, and Supabase.",
     images: [
       {
         url: "/api/og",
         width: 1200,
         height: 630,
-        alt: "Talha Irfan — Full-Stack Web Developer",
+        alt: "talhairfandev — Talha Irfan Portfolio",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Talha Irfan — Full-Stack Web Developer",
+    title: "talhairfandev — Talha Irfan | Full-Stack Web Developer",
     description:
-      "Full-Stack Web Developer specializing in Next.js, React, Node.js, and Supabase.",
+      "Full-Stack Web Developer & Creative Engineer specializing in Next.js, React, Node.js, and Supabase.",
     images: ["/api/og"],
   },
   icons: {
@@ -98,6 +103,39 @@ const jsonLdData = {
   "@context": "https://schema.org",
   "@graph": [
     {
+      "@type": ["WebSite", "Brand"],
+      "@id": `${siteUrl}/#website`,
+      url: siteUrl,
+      name: "talhairfandev",
+      alternateName: [
+        "Talha Irfan",
+        "Talha Irfan — Portfolio",
+        "talhairfandev portfolio",
+        "talhairfandev.me",
+        "Talha Irfan Dev"
+      ],
+      headline: "talhairfandev — Personal Brand & Portfolio of Talha Irfan",
+      description: "Official portfolio and personal brand of Talha Irfan (talhairfandev) — Full-Stack Web Developer & Creative Engineer specializing in Next.js, React, TypeScript, and Supabase.",
+      inLanguage: "en-US",
+      sameAs: [
+        "https://github.com/talhairfandev",
+        "https://www.linkedin.com/in/talha-irfan-a98808252/",
+        "https://x.com/talhafrompak",
+        "https://www.instagram.com/talhairfandev"
+      ],
+      publisher: {
+        "@type": "Person",
+        "@id": `${siteUrl}/#person`,
+        name: "Talha Irfan",
+        alternateName: "talhairfandev",
+        jobTitle: "Full-Stack Web Developer & Creative Engineer",
+        url: siteUrl,
+      },
+      creator: {
+        "@id": `${siteUrl}/#person`,
+      },
+    },
+    {
       "@type": "Person",
       "@id": `${siteUrl}/#person`,
       name: "Talha Irfan",
@@ -105,6 +143,9 @@ const jsonLdData = {
       url: siteUrl,
       email: "mailto:talhairfan.dev@gmail.com",
       jobTitle: "Full-Stack Web Developer & Creative Engineer",
+      brand: {
+        "@id": `${siteUrl}/#website`,
+      },
       sameAs: [
         "https://github.com/talhairfandev",
         "https://www.linkedin.com/in/talha-irfan-a98808252/",
@@ -148,21 +189,10 @@ const jsonLdData = {
       },
     },
     {
-      "@type": "WebSite",
-      "@id": `${siteUrl}/#website`,
-      url: siteUrl,
-      name: "Talha Irfan — Portfolio",
-      alternateName: ["Talha Irfan Portfolio", "talhairfandev.me", "Talha Irfan Dev"],
-      description: "Full-Stack Web Developer portfolio showcasing web applications, projects, and design systems.",
-      publisher: {
-        "@id": `${siteUrl}/#person`,
-      },
-    },
-    {
       "@type": "ProfilePage",
       "@id": `${siteUrl}/#profilepage`,
       url: siteUrl,
-      name: "Talha Irfan — Portfolio",
+      name: "talhairfandev — Talha Irfan Portfolio",
       mainEntity: {
         "@id": `${siteUrl}/#person`,
       },

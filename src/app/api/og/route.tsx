@@ -55,7 +55,7 @@ export async function GET(request: Request) {
                 textTransform: "uppercase",
               }}
             >
-              Talha Irfan Portfolio
+              talhairfandev — Talha Irfan
             </span>
           </div>
 

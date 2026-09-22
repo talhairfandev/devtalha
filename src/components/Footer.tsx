@@ -126,7 +126,7 @@ export default function Footer({ data }: { data?: FooterSection | null }) {
                 <ul className="flex flex-col gap-5">
                   <li><a href="https://x.com/talhafrompak" target="_blank" rel="noopener noreferrer" className={linkClass}>Twitter / X</a></li>
                   <li><a href="https://www.instagram.com/talhairfandev" target="_blank" rel="noopener noreferrer" className={linkClass}>Instagram</a></li>
-                  <li><a href="https://www.linkedin.com/in/talha-irfan-a98808252/" target="_blank" rel="noopener noreferrer" className={linkClass}>LinkedIn</a></li>
+                  <li><a href="https://www.linkedin.com/in/talhairfandev" target="_blank" rel="noopener noreferrer" className={linkClass}>LinkedIn</a></li>
                   <li><a href="https://github.com/talhairfandev" target="_blank" rel="noopener noreferrer" className={linkClass}>GitHub</a></li>
                 </ul>
               </div>

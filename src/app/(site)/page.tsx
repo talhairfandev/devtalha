@@ -105,9 +105,9 @@ export default async function Home() {
       {/* Semantic Server-Rendered Content for AI Agents, Screen Readers, and No-JS Crawlers */}
       <section className="sr-only" aria-label="Portfolio Summary and Structured Content">
         <header>
-          <h1>Talha Irfan — Full-Stack Web Developer & Creative Engineer</h1>
+          <h1>talhairfandev — Talha Irfan | Full-Stack Web Developer & Creative Engineer</h1>
           <p>
-            Talha Irfan is a full-stack web developer and creative software engineer specializing in Next.js, React, TypeScript, Supabase, and high-performance interactive user interfaces. Crafting bespoke web applications, scalable digital products, and brand-first visual systems for forward-thinking clients worldwide.
+            Welcome to the official portfolio and personal brand of talhairfandev (Talha Irfan), a full-stack web developer and creative software engineer specializing in Next.js, React, TypeScript, Supabase, and high-performance interactive user interfaces. Crafting bespoke web applications, scalable digital products, and brand-first visual systems for forward-thinking clients worldwide.
           </p>
         </header>
 
