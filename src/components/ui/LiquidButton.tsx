@@ -60,6 +60,8 @@ export const LiquidButton = ({
         >
           {/* Wave 1 (Back/Ambient Wave) */}
           <motion.path
+            d="M0,100 Q50,100 100,100 L100,100 L0,100 Z"
+            initial={{ d: "M0,100 Q50,100 100,100 L100,100 L0,100 Z" }}
             animate={{
               d: hovered
                 ? [
@@ -81,6 +83,8 @@ export const LiquidButton = ({
 
           {/* Wave 2 (Main solid Wave) */}
           <motion.path
+            d="M0,100 Q50,100 100,100 L100,100 L0,100 Z"
+            initial={{ d: "M0,100 Q50,100 100,100 L100,100 L0,100 Z" }}
             animate={{
               d: hovered
                 ? [

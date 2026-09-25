@@ -119,7 +119,7 @@ const jsonLdData = {
       inLanguage: "en-US",
       sameAs: [
         "https://github.com/talhairfandev",
-        "https://www.linkedin.com/in/talha-irfan-a98808252/",
+        "https://www.linkedin.com/in/talhairfandev/",
         "https://x.com/talhafrompak",
         "https://www.instagram.com/talhairfandev"
       ],
@@ -148,7 +148,7 @@ const jsonLdData = {
       },
       sameAs: [
         "https://github.com/talhairfandev",
-        "https://www.linkedin.com/in/talha-irfan-a98808252/",
+        "https://www.linkedin.com/in/talhairfandev/",
         "https://x.com/talhafrompak",
         "https://www.instagram.com/talhairfandev"
       ],

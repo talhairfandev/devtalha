@@ -197,7 +197,7 @@ export default async function Home() {
           <p>Contact Form: https://talhairfandev.me/#contact</p>
           <p>Email: talhairfan.dev@gmail.com</p>
           <p>GitHub: https://github.com/talhairfandev</p>
-          <p>LinkedIn: https://www.linkedin.com/in/talha-irfan-a98808252/</p>
+          <p>LinkedIn: https://www.linkedin.com/in/talhairfandev/</p>
           <p>Twitter / X: https://x.com/talhafrompak</p>
           <p>Instagram: https://www.instagram.com/talhairfandev</p>
         </footer>
