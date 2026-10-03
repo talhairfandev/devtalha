@@ -67,6 +67,7 @@ export default function Preloader() {
         preserveAspectRatio="none"
       >
         <motion.path
+          d="M0 0 L100 0 L100 100 Q50 100 0 100 Z"
           variants={curveVariants}
           initial="initial"
           animate={status === "exiting" ? "exit" : "animate"}

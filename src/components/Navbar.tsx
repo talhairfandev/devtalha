@@ -12,7 +12,7 @@ import { useTheme } from "@/components/ui/ThemeProvider";
 
 const navLinks = [
   { label: "HOME", href: "/" },
-  { label: "PROJECTS", href: "/#work" },
+  { label: "PROJECTS", href: "/projects" },
   { label: "SERVICES", href: "/#services" },
   { label: "PROCESS", href: "/#process" },
   { label: "CONTACT", href: "/#contact" },
@@ -50,9 +50,11 @@ export default function Navbar() {
   }, [isMenuOpen]);
 
   const handleNavLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string, label: string) => {
+    // Always close the mobile menu when a nav link is tapped.
+    setIsMenuOpen(false);
+
     if (label === "CONTACT" || href.endsWith("#contact")) {
       e.preventDefault();
-      setIsMenuOpen(false);
       if (pathname !== "/") {
         window.location.href = "/#contact";
       } else {
