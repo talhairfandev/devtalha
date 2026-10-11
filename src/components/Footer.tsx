@@ -48,7 +48,7 @@ export default function Footer({ data }: { data?: FooterSection | null }) {
   };
 
   return (
-    <footer className="w-full cv-auto mt-20 relative z-10 section-dark">
+    <footer className="w-full cv-auto relative z-10 section-dark">
       <div className="relative w-full bg-[#000000] overflow-hidden pt-24 pb-12">
         {hasBackgroundImage ? (
           <>
