@@ -66,7 +66,7 @@ export function VideoUploader({
   return (
     <div className="space-y-3">
       {currentUrl && (
-        <div className="relative group overflow-hidden rounded-md border border-zinc-300 bg-zinc-100 max-h-56 w-full flex items-center justify-center p-1">
+        <div className="relative group overflow-hidden rounded-lg border border-zinc-300 bg-zinc-100 max-h-56 w-full flex items-center justify-center p-1">
           <video
             src={currentUrl}
             controls
@@ -77,7 +77,7 @@ export function VideoUploader({
       )}
       <label
         className={cn(
-          "flex items-center justify-center gap-2 rounded-md border border-dashed px-4 py-2.5 text-xs font-semibold cursor-pointer transition-all border-zinc-300 bg-white text-zinc-700 hover:border-zinc-400 hover:bg-zinc-50"
+          "flex items-center justify-center gap-2 rounded-lg border border-dashed px-4 min-h-10 py-2 text-xs font-semibold cursor-pointer transition-all border-zinc-300 bg-white text-zinc-700 hover:border-zinc-400 hover:bg-zinc-50"
         )}
       >
         <Upload size={14} />
@@ -89,19 +89,19 @@ export function VideoUploader({
           type="button"
           onClick={handleDeleteStoredVideo}
           disabled={isDeleting}
-          className="inline-flex items-center justify-center gap-2 rounded-md border border-red-200 bg-red-50 px-4 py-2.5 text-xs font-semibold text-red-700 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex items-center justify-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 min-h-10 py-2 text-xs font-semibold text-red-700 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isDeleting ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
           {isDeleting ? "Deleting..." : "Delete From Bucket"}
         </button>
       ) : null}
       {hasPendingFile ? (
-        <div className="flex items-center justify-between gap-3 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+        <div className="flex items-center justify-between gap-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
           <span className="truncate">Selected: {selectedFileName}</span>
           <button
             type="button"
             onClick={onClear}
-            className="inline-flex items-center gap-1 rounded-md border border-amber-300 bg-white px-2 py-1 text-[11px] font-semibold text-amber-900 hover:bg-amber-100"
+            className="inline-flex items-center gap-1 rounded-lg border border-amber-300 bg-white px-2 py-1 text-[11px] font-semibold text-amber-900 hover:bg-amber-100"
           >
             <X size={12} />
             Clear

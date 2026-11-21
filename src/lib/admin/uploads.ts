@@ -1,4 +1,5 @@
 import type { FieldConfig, SectionRecord } from "@/lib/admin/types";
+import { supabase } from "@/lib/supabase";
 
 const PORTFOLIO_MEDIA_BUCKET = "portfolio-images";
 
@@ -47,26 +48,38 @@ export function isPendingUploadValue(value: unknown): value is PendingUploadValu
   );
 }
 
+/**
+ * Uploads directly to Supabase Storage using a short-lived signed URL, so
+ * large files never go through the Next.js server.
+ */
 async function uploadFile(file: File) {
-  const formData = new FormData();
-  formData.append("file", file);
-
-  const res = await fetch("/api/admin/upload", {
+  const signRes = await fetch("/api/admin/upload/sign", {
     method: "POST",
-    body: formData,
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ fileName: file.name, contentType: file.type, size: file.size }),
   });
 
-  const payload = (await res.json().catch(() => null)) as { url?: string; error?: string } | null;
+  const signed = (await signRes.json().catch(() => null)) as
+    | { path?: string; token?: string; publicUrl?: string; error?: string }
+    | null;
 
-  if (!res.ok) {
-    throw new Error(payload?.error ?? "Upload failed");
+  if (!signRes.ok) {
+    throw new Error(signed?.error ?? "Could not start upload");
   }
 
-  if (!payload?.url) {
-    throw new Error("Upload response missing URL");
+  if (!signed?.path || !signed.token || !signed.publicUrl) {
+    throw new Error("Upload response was incomplete");
   }
 
-  return payload.url;
+  const { error } = await supabase.storage
+    .from(PORTFOLIO_MEDIA_BUCKET)
+    .uploadToSignedUrl(signed.path, signed.token, file, { contentType: file.type });
+
+  if (error) {
+    throw new Error(error.message || "Upload failed");
+  }
+
+  return signed.publicUrl;
 }
 
 export async function deleteStoredMedia(url: string) {

@@ -12,12 +12,13 @@ import {
 } from '@/lib/admin/sections';
 import { isHomepageSectionKey } from '@/lib/admin/homepageSections';
 import { createAdminClient } from '@/lib/supabase';
+import { isAdminRequest } from '@/lib/adminSession';
 import { getRecordStorageImages, getManagedStoragePathFromUrl } from '@/lib/admin/uploads';
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 
-function isUnauthorized(req: NextRequest) {
-  return req.cookies.get('admin_auth')?.value !== 'true';
+async function isUnauthorized(req: NextRequest) {
+  return !(await isAdminRequest(req));
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -138,7 +139,7 @@ export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ section: string }> }
 ) {
-  if (isUnauthorized(req)) {
+  if (await isUnauthorized(req)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -170,7 +171,7 @@ export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ section: string }> }
 ) {
-  if (isUnauthorized(req)) {
+  if (await isUnauthorized(req)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -220,7 +221,7 @@ export async function PUT(
   req: NextRequest,
   { params }: { params: Promise<{ section: string }> }
 ) {
-  if (req.cookies.get('admin_auth')?.value !== 'true') {
+  if (await isUnauthorized(req)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -301,7 +302,7 @@ export async function DELETE(
   req: NextRequest,
   { params }: { params: Promise<{ section: string }> }
 ) {
-  if (isUnauthorized(req)) {
+  if (await isUnauthorized(req)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 

@@ -5,5 +5,5 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <div className="admin-panel">{children}</div>;
+  return <div className="admin-panel font-sans">{children}</div>;
 }

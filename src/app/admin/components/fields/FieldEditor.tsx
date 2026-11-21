@@ -16,16 +16,25 @@ import { VideoUploader } from "@/app/admin/components/fields/VideoUploader";
 import { MediaUploader } from "@/app/admin/components/fields/MediaUploader";
 
 type FieldEditorProps = {
+  id?: string;
   field: FieldConfig;
   value: unknown;
   onChange: (next: unknown) => void;
   addToast?: (type: "success" | "error", message: string) => void;
 };
 
-export function FieldEditor({ field, value, onChange, addToast }: FieldEditorProps) {
+const addButton =
+  "inline-flex h-10 items-center justify-center gap-1.5 rounded-lg border border-dashed border-zinc-300 bg-white px-4 text-xs font-semibold text-zinc-700 transition-colors hover:border-zinc-400 hover:bg-zinc-50";
+const iconButton =
+  "inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-zinc-300 bg-white text-zinc-500 transition-colors hover:border-red-200 hover:bg-red-50 hover:text-red-600";
+const textButton =
+  "inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-zinc-300 bg-white px-3 text-xs font-semibold text-zinc-700 transition-colors hover:bg-zinc-100";
+const itemCard = "rounded-xl border border-zinc-200 bg-zinc-50/70 p-3 sm:p-4";
+
+export function FieldEditor({ id, field, value, onChange, addToast }: FieldEditorProps) {
   const textValue = toTextValue(value, field.type);
   const baseInput =
-    "w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 shadow-sm focus:border-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-200";
+    "block w-full min-w-0 rounded-lg border border-zinc-300 bg-white px-3 h-10 text-sm text-zinc-900 placeholder:text-zinc-400 shadow-sm transition-colors hover:border-zinc-400 focus:border-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900/10";
 
   const clearPendingUpload = (currentValue: unknown) => {
     if (isPendingUploadValue(currentValue)) {
@@ -51,8 +60,8 @@ export function FieldEditor({ field, value, onChange, addToast }: FieldEditorPro
     return (
       <div className="space-y-3">
         {list.map((item, index) => (
-          <div key={`${field.key}-${index}`} className="rounded-md border border-zinc-200 bg-zinc-50 p-3">
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-[120px_100px_1fr_auto]">
+          <div key={`${field.key}-${index}`} className={itemCard}>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-[120px_100px_1fr_auto]">
               <input
                 type="number"
                 value={String(item.value ?? 0)}
@@ -82,7 +91,7 @@ export function FieldEditor({ field, value, onChange, addToast }: FieldEditorPro
               <button
                 type="button"
                 onClick={() => removeItem(index)}
-                className="inline-flex items-center justify-center rounded-md border border-zinc-300 bg-white px-2.5 text-zinc-500 hover:bg-zinc-100"
+                className={cn(iconButton, "w-full sm:w-10")}
                 aria-label="Remove stat"
               >
                 <Trash2 size={14} />
@@ -93,7 +102,7 @@ export function FieldEditor({ field, value, onChange, addToast }: FieldEditorPro
         <button
           type="button"
           onClick={addItem}
-          className="inline-flex items-center gap-1.5 rounded-md border border-zinc-300 bg-white px-3 py-2 text-xs font-semibold text-zinc-700 hover:bg-zinc-50"
+          className={addButton}
         >
           <Plus size={14} />
           Add Stat
@@ -120,8 +129,8 @@ export function FieldEditor({ field, value, onChange, addToast }: FieldEditorPro
     return (
       <div className="space-y-3">
         {list.map((item, index) => (
-          <div key={`${field.key}-${index}`} className="rounded-md border border-zinc-200 bg-zinc-50 p-3">
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-[220px_1fr_auto]">
+          <div key={`${field.key}-${index}`} className={itemCard}>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-[180px_1fr_auto]">
               <input
                 type="text"
                 value={item.name ?? ""}
@@ -139,7 +148,7 @@ export function FieldEditor({ field, value, onChange, addToast }: FieldEditorPro
               <button
                 type="button"
                 onClick={() => removeItem(index)}
-                className="inline-flex items-center justify-center rounded-md border border-zinc-300 bg-white px-2.5 text-zinc-500 hover:bg-zinc-100"
+                className={cn(iconButton, "w-full sm:w-10")}
                 aria-label="Remove social"
               >
                 <Trash2 size={14} />
@@ -150,7 +159,7 @@ export function FieldEditor({ field, value, onChange, addToast }: FieldEditorPro
         <button
           type="button"
           onClick={addItem}
-          className="inline-flex items-center gap-1.5 rounded-md border border-zinc-300 bg-white px-3 py-2 text-xs font-semibold text-zinc-700 hover:bg-zinc-50"
+          className={addButton}
         >
           <Plus size={14} />
           Add Social Link
@@ -177,7 +186,7 @@ export function FieldEditor({ field, value, onChange, addToast }: FieldEditorPro
     return (
       <div className="space-y-3">
         {list.map((item, index) => (
-          <div key={`${field.key}-${index}`} className="rounded-md border border-zinc-200 bg-zinc-50 p-3">
+          <div key={`${field.key}-${index}`} className={itemCard}>
             <div className="space-y-2">
               <input
                 type="text"
@@ -191,13 +200,13 @@ export function FieldEditor({ field, value, onChange, addToast }: FieldEditorPro
                 onChange={(event) => updateItem(index, { ...item, description: event.target.value })}
                 placeholder="Scope Description..."
                 rows={3}
-                className={cn(baseInput, "resize-y")}
+                className={cn(baseInput, "h-auto resize-y py-2.5")}
               />
               <div className="flex justify-end">
                 <button
                   type="button"
                   onClick={() => removeItem(index)}
-                  className="inline-flex items-center gap-1.5 rounded-md border border-red-200 bg-red-50 px-2.5 py-1 text-xs font-semibold text-red-700 hover:bg-red-100"
+                  className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-3 text-xs font-semibold text-red-700 transition-colors hover:bg-red-100"
                   aria-label="Remove scope"
                 >
                   <Trash2 size={12} />
@@ -210,7 +219,7 @@ export function FieldEditor({ field, value, onChange, addToast }: FieldEditorPro
         <button
           type="button"
           onClick={addItem}
-          className="inline-flex items-center gap-1.5 rounded-md border border-zinc-300 bg-white px-3 py-2 text-xs font-semibold text-zinc-700 hover:bg-zinc-50"
+          className={addButton}
         >
           <Plus size={14} />
           Add Scope Item
@@ -248,7 +257,7 @@ export function FieldEditor({ field, value, onChange, addToast }: FieldEditorPro
             <button
               type="button"
               onClick={() => removeItem(index)}
-              className="inline-flex items-center justify-center rounded-md border border-zinc-300 bg-white px-2.5 py-2 text-zinc-500 hover:bg-zinc-100"
+              className={iconButton}
               aria-label="Remove item"
             >
               <Trash2 size={14} />
@@ -258,7 +267,7 @@ export function FieldEditor({ field, value, onChange, addToast }: FieldEditorPro
         <button
           type="button"
           onClick={addItem}
-          className="inline-flex items-center gap-1.5 rounded-md border border-zinc-300 bg-white px-3 py-2 text-xs font-semibold text-zinc-700 hover:bg-zinc-50"
+          className={addButton}
         >
           <Plus size={14} />
           Add Item
@@ -285,7 +294,7 @@ export function FieldEditor({ field, value, onChange, addToast }: FieldEditorPro
     return (
       <div className="space-y-3">
         {list.map((item, index) => (
-          <div key={`${field.key}-${index}`} className="rounded-md border border-zinc-200 bg-zinc-50 p-3">
+          <div key={`${field.key}-${index}`} className={itemCard}>
             <div className="space-y-2">
               {(() => {
                 const pending = isPendingUploadValue(item) ? item : null;
@@ -350,7 +359,7 @@ export function FieldEditor({ field, value, onChange, addToast }: FieldEditorPro
               <button
                 type="button"
                 onClick={() => removeItem(index)}
-                className="inline-flex items-center gap-1.5 rounded-md border border-zinc-300 bg-white px-3 py-2 text-xs font-semibold text-zinc-700 hover:bg-zinc-100"
+                className={textButton}
                 aria-label="Remove image"
               >
                 <Trash2 size={14} />
@@ -363,7 +372,7 @@ export function FieldEditor({ field, value, onChange, addToast }: FieldEditorPro
         <button
           type="button"
           onClick={addItem}
-          className="inline-flex items-center gap-1.5 rounded-md border border-zinc-300 bg-white px-3 py-2 text-xs font-semibold text-zinc-700 hover:bg-zinc-50"
+          className={addButton}
         >
           <Plus size={14} />
           Add Image
@@ -381,6 +390,7 @@ export function FieldEditor({ field, value, onChange, addToast }: FieldEditorPro
     return (
       <div className="space-y-3">
         <input
+          id={id}
           type="text"
           value={inputValue}
           onChange={(event) => {
@@ -432,11 +442,12 @@ export function FieldEditor({ field, value, onChange, addToast }: FieldEditorPro
   if (field.type === "textarea") {
     return (
       <textarea
+        id={id}
         value={textValue}
         onChange={(event) => onChange(fromTextValue(event.target.value, field.type))}
         rows={5}
         placeholder={field.placeholder}
-        className={cn(baseInput, "resize-y min-h-[120px]")}
+        className={cn(baseInput, "h-auto min-h-[120px] resize-y py-2.5 leading-relaxed")}
       />
     );
   }
@@ -444,10 +455,11 @@ export function FieldEditor({ field, value, onChange, addToast }: FieldEditorPro
   if (field.type === "number") {
     return (
       <input
+        id={id}
         type="number"
         value={textValue}
         onChange={(event) => onChange(fromTextValue(event.target.value, "number"))}
-        className={cn(baseInput, "w-32")}
+        className={cn(baseInput, "sm:w-40")}
       />
     );
   }
@@ -456,6 +468,7 @@ export function FieldEditor({ field, value, onChange, addToast }: FieldEditorPro
     const options = field.options ?? [];
     return (
       <select
+        id={id}
         value={textValue}
         onChange={(event) => onChange(event.target.value)}
         className={baseInput}
@@ -484,7 +497,7 @@ export function FieldEditor({ field, value, onChange, addToast }: FieldEditorPro
           step={step}
           value={numValue}
           onChange={(event) => onChange(Number(event.target.value))}
-          className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-zinc-200 accent-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-200"
+          className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-zinc-200 accent-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900/10"
         />
         <span className="min-w-[40px] text-right text-sm font-medium text-zinc-700">
           {numValue}%
@@ -502,6 +515,7 @@ export function FieldEditor({ field, value, onChange, addToast }: FieldEditorPro
     return (
       <div className="space-y-3">
         <input
+          id={id}
           type="text"
           value={inputValue}
           onChange={(event) => {
@@ -559,6 +573,7 @@ export function FieldEditor({ field, value, onChange, addToast }: FieldEditorPro
     return (
       <div className="space-y-3">
         <input
+          id={id}
           type="text"
           value={inputValue}
           onChange={(event) => {
@@ -622,7 +637,7 @@ export function FieldEditor({ field, value, onChange, addToast }: FieldEditorPro
     return (
       <div className="space-y-3">
         {list.map((item, index) => (
-          <div key={`${field.key}-${index}`} className="rounded-md border border-zinc-200 bg-zinc-50 p-3">
+          <div key={`${field.key}-${index}`} className={itemCard}>
             <div className="space-y-2">
               {(() => {
                 const pending = isPendingUploadValue(item) ? item : null;
@@ -684,7 +699,7 @@ export function FieldEditor({ field, value, onChange, addToast }: FieldEditorPro
               <button
                 type="button"
                 onClick={() => removeItem(index)}
-                className="inline-flex items-center gap-1.5 rounded-md border border-zinc-300 bg-white px-3 py-2 text-xs font-semibold text-zinc-700 hover:bg-zinc-100"
+                className={textButton}
                 aria-label="Remove media"
               >
                 <Trash2 size={14} />
@@ -697,7 +712,7 @@ export function FieldEditor({ field, value, onChange, addToast }: FieldEditorPro
         <button
           type="button"
           onClick={addItem}
-          className="inline-flex items-center gap-1.5 rounded-md border border-zinc-300 bg-white px-3 py-2 text-xs font-semibold text-zinc-700 hover:bg-zinc-50"
+          className={addButton}
         >
           <Plus size={14} />
           Add Media
@@ -708,6 +723,7 @@ export function FieldEditor({ field, value, onChange, addToast }: FieldEditorPro
 
   return (
     <input
+      id={id}
       type="text"
       value={textValue}
       onChange={(event) => onChange(event.target.value)}

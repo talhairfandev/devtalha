@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { ADMIN_COOKIE_NAME, verifyAdminSession } from '@/lib/adminSession';
 
 const MARKDOWN_HOMEPAGE = `# Talha Irfan — Full-Stack Web Developer & Creative Engineer
 
@@ -140,10 +141,30 @@ function isKnownRoute(pathname: string): boolean {
   return KNOWN_ROUTES.includes(pathname);
 }
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const accept = request.headers.get('accept') || '';
   const pathname = request.nextUrl.pathname;
   const wantsMarkdown = accept.toLowerCase().includes('text/markdown');
+
+  // Admin gate: redirect before any admin UI is rendered or sent to the browser
+  if (pathname === '/admin' || pathname.startsWith('/admin/')) {
+    const isLoggedIn = await verifyAdminSession(request.cookies.get(ADMIN_COOKIE_NAME)?.value);
+    const isLoginPage = pathname === '/admin/login';
+
+    if (!isLoggedIn && !isLoginPage) {
+      const redirect = NextResponse.redirect(new URL('/admin/login', request.url));
+      redirect.headers.set('Cache-Control', 'no-store');
+      return redirect;
+    }
+
+    if (isLoggedIn && isLoginPage) {
+      return NextResponse.redirect(new URL('/admin', request.url));
+    }
+
+    const response = NextResponse.next();
+    response.headers.set('Cache-Control', 'no-store');
+    return response;
+  }
 
   if (wantsMarkdown) {
     // 1. Nonexistent path with Accept: text/markdown -> Return 404 Markdown

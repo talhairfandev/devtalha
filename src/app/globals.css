@@ -138,7 +138,7 @@ html, body {
     scrollbar-gutter: stable;
   }
 
-  main {
+  main:not(.admin-main) {
     padding: 0 !important;
     margin: 0 !important;
     width: 100%;
@@ -254,10 +254,96 @@ html, body {
   color: #ffffff;
 }
 
-/* Admin Panel — ensure native scrolling works properly */
+/* Admin Panel — the panel is its own full-viewport scroll container.
+   The document itself never scrolls on admin routes, so the site theme
+   (dark background, scrollbar gutter, body transitions) can never show
+   through below or beside the content. */
+html:has(.admin-panel) {
+  background-color: #f4f4f5 !important;
+  overflow: hidden;
+  scrollbar-gutter: auto;
+  color-scheme: light;
+}
+
+html:has(.admin-panel) body {
+  background-color: #f4f4f5 !important;
+  overflow: hidden !important;
+  min-height: 0;
+  transition: none;
+}
+
 .admin-panel {
   /* Override any smooth-scroll or Lenis interference */
   scroll-behavior: auto !important;
+  position: fixed;
+  inset: 0;
+  height: 100dvh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  background-color: #f4f4f5;
+  color: #18181b;
+  color-scheme: light;
+  scrollbar-width: thin;
+  scrollbar-color: #c4c4cc transparent;
+}
+
+.admin-panel::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.admin-panel::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.admin-panel::-webkit-scrollbar-thumb {
+  background: #c4c4cc;
+  border-radius: 999px;
+  border: 2px solid #f4f4f5;
+}
+
+.admin-panel::-webkit-scrollbar-thumb:hover {
+  background: #a1a1aa;
+}
+
+/* Prevent iOS zoom-on-focus: inputs must be >= 16px on small screens */
+@media (max-width: 767px) {
+  .admin-panel input:not([type="range"]):not([type="checkbox"]):not([type="file"]),
+  .admin-panel select,
+  .admin-panel textarea {
+    font-size: 16px !important;
+  }
+}
+
+.admin-panel :focus-visible {
+  outline: 2px solid #18181b;
+  outline-offset: 2px;
+}
+
+.admin-panel input:focus-visible,
+.admin-panel select:focus-visible,
+.admin-panel textarea:focus-visible {
+  outline: none;
+}
+
+@keyframes admin-fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes admin-sheet-in {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.admin-fade-in { animation: admin-fade-in 0.25s ease-out both; }
+.admin-sheet-in { animation: admin-sheet-in 0.25s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-fade-in,
+  .admin-sheet-in { animation: none; }
 }
 
 /* Admin modal scrollbar refinement */

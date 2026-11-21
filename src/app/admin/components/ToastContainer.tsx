@@ -12,20 +12,20 @@ type ToastContainerProps = {
 
 export function ToastContainer({ toasts, onDismiss }: ToastContainerProps) {
   return (
-    <div className="fixed top-4 right-4 z-[100] flex flex-col gap-2 pointer-events-none">
+    <div role="status" aria-live="polite" className="pointer-events-none fixed inset-x-3 top-3 z-[110] flex flex-col items-stretch gap-2 sm:inset-x-auto sm:right-4 sm:top-4 sm:w-[360px]">
       {toasts.map((toast) => (
         <div
           key={toast.id}
           className={cn(
-            "pointer-events-auto flex items-center gap-2.5 rounded-md border px-3 py-2 text-sm shadow-sm bg-white",
+            "admin-fade-in pointer-events-auto flex items-center gap-2.5 rounded-xl border bg-white px-3.5 py-3 text-sm shadow-lg",
             toast.type === "success"
               ? "border-emerald-200 text-emerald-800"
               : "border-red-200 text-red-700"
           )}
         >
           {toast.type === "success" ? <Check size={16} /> : <AlertCircle size={16} />}
-          <span className="text-sm font-medium">{toast.message}</span>
-          <button onClick={() => onDismiss(toast.id)} className="ml-1 opacity-50 hover:opacity-100">
+          <span className="min-w-0 flex-1 break-words text-sm font-medium">{toast.message}</span>
+          <button type="button" aria-label="Dismiss" onClick={() => onDismiss(toast.id)} className="-mr-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-md opacity-50 hover:bg-zinc-100 hover:opacity-100">
             <X size={14} />
           </button>
         </div>

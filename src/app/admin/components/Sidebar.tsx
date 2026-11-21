@@ -20,6 +20,11 @@ type SidebarProps = {
   onLogout: () => void;
 };
 
+const itemBase =
+  "w-full flex items-center gap-3 rounded-lg px-3 min-h-10 py-2 text-[13px] font-medium text-left transition-colors";
+const itemIdle = "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900";
+const itemActive = "bg-zinc-900 text-white shadow-sm";
+
 export function Sidebar({
   activeSection,
   sidebarOpen,
@@ -30,69 +35,74 @@ export function Sidebar({
 }: SidebarProps) {
   return (
     <aside
+      aria-label="Admin navigation"
       className={cn(
-        "fixed top-0 left-0 z-40 h-full w-[280px] border-r border-zinc-200 bg-white flex flex-col transition-transform duration-300",
-        sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+        "fixed inset-y-0 left-0 z-40 flex h-dvh w-[272px] max-w-[85vw] flex-col border-r border-zinc-200 bg-white transition-transform duration-300 ease-out",
+        "lg:translate-x-0 lg:shadow-none",
+        sidebarOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full"
       )}
     >
-      <div className="px-6 py-5 border-b border-zinc-200">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-base font-semibold tracking-tight text-zinc-900">Portfolio CMS</h1>
-            <p className="text-[11px] text-zinc-500 mt-0.5">Admin Workspace</p>
+      <div className="flex h-16 shrink-0 items-center justify-between border-b border-zinc-200 px-5">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-zinc-900 text-[11px] font-bold text-white">
+            TI
           </div>
-          <button onClick={onCloseSidebar} className="md:hidden text-zinc-500 hover:text-zinc-800">
-            <X size={18} />
-          </button>
+          <div className="min-w-0">
+            <h1 className="truncate text-sm font-semibold leading-tight tracking-tight text-zinc-900">Portfolio CMS</h1>
+            <p className="text-[11px] leading-tight text-zinc-500">Admin Workspace</p>
+          </div>
         </div>
+        <button
+          type="button"
+          onClick={onCloseSidebar}
+          aria-label="Close navigation"
+          className="-mr-2 flex h-10 w-10 items-center justify-center rounded-lg text-zinc-500 hover:bg-zinc-100 hover:text-zinc-800 lg:hidden"
+        >
+          <X size={18} />
+        </button>
       </div>
 
-      <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
+      <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto overscroll-contain px-3 py-4">
         <button
+          type="button"
           onClick={onOpenDashboard}
-          className={cn(
-            "w-full flex items-center gap-3 rounded-md px-3 py-2.5 text-[13px] font-medium transition",
-            activeSection === null ? "bg-zinc-900 text-white" : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
-          )}
+          aria-current={activeSection === null ? "page" : undefined}
+          className={cn(itemBase, activeSection === null ? itemActive : itemIdle)}
         >
           <LayoutDashboard size={16} />
           Dashboard
         </button>
 
-        <div className="pt-4 pb-2 px-3">
-          <span className="text-[11px] font-medium text-zinc-500">Sections</span>
-        </div>
+        <p className="px-3 pb-1 pt-5 text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Sections</p>
 
         {SECTION_CONFIGS.map((section) => (
           <button
+            type="button"
             key={section.section}
             onClick={() => onNavigate(section.section)}
-            className={cn(
-              "w-full flex items-center gap-3 rounded-md px-3 py-2.5 text-[13px] font-medium transition",
-              activeSection === section.section
-                ? "bg-zinc-900 text-white"
-                : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
-            )}
+            aria-current={activeSection === section.section ? "page" : undefined}
+            className={cn(itemBase, activeSection === section.section ? itemActive : itemIdle)}
           >
-            {section.icon}
-            {section.title}
+            <span className="shrink-0">{section.icon}</span>
+            <span className="truncate">{section.title}</span>
           </button>
         ))}
       </nav>
 
-      <div className="border-t border-zinc-200 p-3 space-y-1">
+      <div className="shrink-0 space-y-1 border-t border-zinc-200 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
         <a
           href="/"
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-3 rounded-md px-3 py-2.5 text-[13px] font-medium text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 transition"
+          className={cn(itemBase, itemIdle)}
         >
           <ExternalLink size={16} />
           View Live Site
         </a>
         <button
+          type="button"
           onClick={onLogout}
-          className="w-full flex items-center gap-3 rounded-md px-3 py-2.5 text-[13px] font-medium text-red-600/80 hover:bg-red-50 hover:text-red-700 transition"
+          className={cn(itemBase, "text-red-600/80 hover:bg-red-50 hover:text-red-700")}
         >
           <LogOut size={16} />
           Sign Out

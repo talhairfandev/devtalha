@@ -45,7 +45,7 @@ type SortableSectionRowProps = {
 
 function SortableSectionRow({ row, index, totalRows }: SortableSectionRowProps) {
   const id = String(row.id);
-  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -56,12 +56,12 @@ function SortableSectionRow({ row, index, totalRows }: SortableSectionRowProps) 
     <div
       ref={setNodeRef}
       style={style}
-      className="rounded-lg border border-zinc-200 bg-white p-4 shadow-sm transition hover:border-zinc-300"
+      className={`rounded-xl border border-zinc-200 bg-white p-3 shadow-sm transition hover:border-zinc-300 sm:p-4 ${isDragging ? "relative z-10 shadow-lg ring-2 ring-zinc-900/10" : ""}`}
     >
       <div className="flex items-center gap-3">
         <button
           type="button"
-          className="rounded-md border border-zinc-200 bg-zinc-50 p-2 text-zinc-500 hover:bg-zinc-100"
+          className="flex h-10 w-10 shrink-0 touch-none cursor-grab items-center justify-center rounded-lg border border-zinc-200 bg-zinc-50 text-zinc-500 hover:bg-zinc-100 active:cursor-grabbing"
           aria-label="Drag to reorder"
           {...attributes}
           {...listeners}
@@ -74,7 +74,7 @@ function SortableSectionRow({ row, index, totalRows }: SortableSectionRowProps) 
           <p className="text-xs text-zinc-500 mt-0.5">Key: {row.section_key}</p>
         </div>
 
-        <span className="hidden md:flex items-center justify-center h-8 w-8 rounded-md bg-zinc-100 text-[11px] font-semibold text-zinc-600">
+        <span className="hidden h-8 min-w-8 items-center justify-center rounded-lg px-2 md:flex bg-zinc-100 text-[11px] font-semibold text-zinc-600">
           {index + 1}/{totalRows}
         </span>
       </div>
@@ -125,7 +125,7 @@ export function SectionBuilderEditor({ addToast }: SectionBuilderEditorProps) {
   const [saving, setSaving] = useState(false);
 
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
@@ -252,16 +252,18 @@ export function SectionBuilderEditor({ addToast }: SectionBuilderEditorProps) {
 
   if (loading) {
     return (
-      <div className="flex items-center gap-3 py-12 text-zinc-500">
-        <Loader2 size={18} className="animate-spin" />
-        <span className="text-sm">Loading section builder...</span>
+      <div className="space-y-3" role="status" aria-live="polite">
+        {[0, 1, 2, 3].map((i) => (
+          <div key={i} className="h-[66px] animate-pulse rounded-xl border border-zinc-200 bg-white" />
+        ))}
+        <span className="sr-only">Loading section builder...</span>
       </div>
     );
   }
 
   return (
     <div className="space-y-4">
-      <div className="rounded-lg border border-zinc-200 bg-white p-4 text-xs text-zinc-500">
+      <div className="rounded-xl border border-zinc-200 bg-white p-4 text-xs text-zinc-500">
         Drag sections to reorder them. Changes are saved automatically.
       </div>
 

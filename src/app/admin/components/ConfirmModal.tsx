@@ -3,6 +3,7 @@
 import { AlertTriangle, Loader2 } from "lucide-react";
 import { useEffect } from "react";
 import Image from "next/image";
+import { useScrollLock } from "@/hooks/useScrollLock";
 
 type ConfirmModalProps = {
   isOpen: boolean;
@@ -27,23 +28,7 @@ export function ConfirmModal({
   isLoading = false,
   imagesToPurge = [],
 }: ConfirmModalProps) {
-  // Lock body scroll when modal is open
-  useEffect(() => {
-    if (isOpen) {
-      const scrollY = window.scrollY;
-      document.body.style.overflow = "hidden";
-      document.body.style.position = "fixed";
-      document.body.style.top = `-${scrollY}px`;
-      document.body.style.width = "100%";
-      return () => {
-        document.body.style.overflow = "";
-        document.body.style.position = "";
-        document.body.style.top = "";
-        document.body.style.width = "";
-        window.scrollTo(0, scrollY);
-      };
-    }
-  }, [isOpen]);
+  useScrollLock(isOpen);
 
   // Handle escape key
   useEffect(() => {
@@ -70,7 +55,7 @@ export function ConfirmModal({
 
       {/* Modal Content */}
       <div
-        className="relative w-full max-w-md transform overflow-hidden rounded-xl border border-zinc-200 bg-white p-6 shadow-2xl transition-all duration-300 scale-100"
+        className="admin-sheet-in relative w-full max-w-md transform overflow-hidden rounded-2xl border border-zinc-200 bg-white p-6 shadow-2xl transition-all duration-300 scale-100"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start gap-4">
@@ -91,7 +76,7 @@ export function ConfirmModal({
                   {imagesToPurge.map((url, i) => (
                     <div
                       key={i}
-                      className="relative h-12 w-12 shrink-0 overflow-hidden rounded-md border border-zinc-200 bg-zinc-100"
+                      className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg border border-zinc-200 bg-zinc-100"
                     >
                       <Image
                         src={url}
@@ -109,12 +94,12 @@ export function ConfirmModal({
           </div>
         </div>
 
-        <div className="mt-6 flex flex-row-reverse gap-3 border-t border-zinc-100 pt-4">
+        <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row-reverse sm:gap-3 border-t border-zinc-100 pt-4">
           <button
             type="button"
             onClick={onConfirm}
             disabled={isLoading}
-            className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-md bg-red-600 px-4 py-2.5 text-xs font-semibold text-white shadow-sm hover:bg-red-700 transition disabled:opacity-50"
+            className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-lg bg-red-600 px-4 min-h-10 py-2 text-xs font-semibold text-white shadow-sm hover:bg-red-700 transition disabled:opacity-50"
           >
             {isLoading ? <Loader2 size={14} className="animate-spin" /> : null}
             {confirmText}
@@ -123,7 +108,7 @@ export function ConfirmModal({
             type="button"
             onClick={onClose}
             disabled={isLoading}
-            className="inline-flex w-full sm:w-auto items-center justify-center rounded-md border border-zinc-300 bg-white px-4 py-2.5 text-xs font-semibold text-zinc-700 shadow-sm hover:bg-zinc-50 transition disabled:opacity-50"
+            className="inline-flex w-full sm:w-auto items-center justify-center rounded-lg border border-zinc-300 bg-white px-4 min-h-10 py-2 text-xs font-semibold text-zinc-700 shadow-sm hover:bg-zinc-50 transition disabled:opacity-50"
           >
             {cancelText}
           </button>

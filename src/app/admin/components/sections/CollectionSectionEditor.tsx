@@ -32,6 +32,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { SectionForm } from "@/app/admin/components/sections/SectionForm";
 import { ConfirmModal } from "@/app/admin/components/ConfirmModal";
+import { useScrollLock } from "@/hooks/useScrollLock";
 import { resolvePendingUploads, getRecordStorageImages } from "@/lib/admin/uploads";
 import type { SectionConfig, SectionRecord } from "@/lib/admin/types";
 
@@ -46,7 +47,7 @@ type SortableRowProps = {
 
 function SortableRow({ row, index, totalRows, onEdit, onDelete }: SortableRowProps) {
   const id = String(row.id);
-  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -61,21 +62,23 @@ function SortableRow({ row, index, totalRows, onEdit, onDelete }: SortableRowPro
     <div
       ref={setNodeRef}
       style={style}
-      className="group rounded-lg border border-zinc-200 bg-white p-4 shadow-sm transition hover:border-zinc-300"
+      className={`group rounded-xl border border-zinc-200 bg-white p-3 shadow-sm transition hover:border-zinc-300 sm:p-4 ${
+        isDragging ? "relative z-10 shadow-lg ring-2 ring-zinc-900/10" : ""
+      }`}
     >
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3 sm:gap-4">
         <button
           type="button"
-          className="rounded-md border border-zinc-200 bg-zinc-50 p-2 text-zinc-500 hover:bg-zinc-100"
+          className="flex h-10 w-10 shrink-0 touch-none cursor-grab items-center justify-center rounded-lg border border-zinc-200 bg-zinc-50 text-zinc-500 hover:bg-zinc-100 active:cursor-grabbing"
           aria-label="Drag to reorder"
           {...attributes}
           {...listeners}
         >
-          <GripVertical size={14} />
+          <GripVertical size={16} />
         </button>
 
         {imgUrl && (
-          <div className="relative hidden sm:block h-14 w-14 flex-shrink-0 overflow-hidden rounded-md border border-zinc-200">
+          <div className="relative hidden h-14 w-14 shrink-0 overflow-hidden rounded-lg border border-zinc-200 bg-zinc-100 sm:block">
             <Image
               src={imgUrl}
               alt=""
@@ -92,22 +95,26 @@ function SortableRow({ row, index, totalRows, onEdit, onDelete }: SortableRowPro
           {subtitle && <p className="truncate text-xs text-zinc-500 mt-0.5">{subtitle}</p>}
         </div>
 
-        <span className="hidden md:flex items-center justify-center h-8 w-8 rounded-md bg-zinc-100 text-[11px] font-semibold text-zinc-600">
+        <span className="hidden h-8 min-w-8 items-center justify-center rounded-lg bg-zinc-100 px-2 text-[11px] font-semibold text-zinc-600 md:flex">
           {index + 1}/{totalRows}
         </span>
 
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1">
           <button
+            type="button"
             onClick={() => onEdit(row)}
-            className="rounded-md border border-transparent p-2 text-zinc-500 transition hover:border-zinc-200 hover:bg-zinc-50 hover:text-zinc-700"
+            aria-label={`Edit ${title}`}
+            className="flex h-10 w-10 items-center justify-center rounded-lg text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-800"
           >
-            <Pencil size={14} />
+            <Pencil size={15} />
           </button>
           <button
+            type="button"
             onClick={() => onDelete(String(row.id))}
-            className="rounded-md border border-transparent p-2 text-red-500/70 transition hover:border-red-100 hover:bg-red-50 hover:text-red-600"
+            aria-label={`Delete ${title}`}
+            className="flex h-10 w-10 items-center justify-center rounded-lg text-red-500/70 transition hover:bg-red-50 hover:text-red-600"
           >
-            <Trash2 size={14} />
+            <Trash2 size={15} />
           </button>
         </div>
       </div>
@@ -130,26 +137,23 @@ export function CollectionSectionEditor({ config, addToast }: CollectionSectionE
   const [isDeleting, setIsDeleting] = useState(false);
 
 
-  // Lock body scroll when modal is open
-  useEffect(() => {
-    if (editing) {
-      const scrollY = window.scrollY;
-      document.body.style.overflow = "hidden";
-      document.body.style.position = "fixed";
-      document.body.style.top = `-${scrollY}px`;
-      document.body.style.width = "100%";
-      return () => {
-        document.body.style.overflow = "";
-        document.body.style.position = "";
-        document.body.style.top = "";
-        document.body.style.width = "";
-        window.scrollTo(0, scrollY);
-      };
-    }
-  }, [editing]);
+  // Lock the admin shell scroll while the editor sheet is open
+  useScrollLock(Boolean(editing));
 
+  // Close the editor with Escape
+  useEffect(() => {
+    if (!editing || saving) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setEditing(null);
+        setOriginalEditing(null);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [editing, saving]);
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
@@ -323,9 +327,11 @@ export function CollectionSectionEditor({ config, addToast }: CollectionSectionE
 
   if (loading) {
     return (
-      <div className="flex items-center gap-3 py-12 text-zinc-500">
-        <Loader2 size={18} className="animate-spin" />
-        <span className="text-sm">Loading {config.title}...</span>
+      <div className="space-y-3" role="status" aria-live="polite">
+        {[0, 1, 2].map((i) => (
+          <div key={i} className="h-[74px] animate-pulse rounded-xl border border-zinc-200 bg-white" />
+        ))}
+        <span className="sr-only">Loading {config.title}...</span>
       </div>
     );
   }
@@ -334,7 +340,7 @@ export function CollectionSectionEditor({ config, addToast }: CollectionSectionE
     <div className="space-y-6">
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <SortableContext items={rows.map((row) => String(row.id))} strategy={verticalListSortingStrategy}>
-          <div className="space-y-3">
+          <div className="space-y-2.5 sm:space-y-3">
             {rows.map((row, index) => (
               <SortableRow
                 key={String(row.id)}
@@ -349,9 +355,16 @@ export function CollectionSectionEditor({ config, addToast }: CollectionSectionE
         </SortableContext>
       </DndContext>
 
+      {rows.length === 0 && (
+        <div className="rounded-xl border border-dashed border-zinc-300 bg-white px-6 py-10 text-center text-sm text-zinc-500">
+          No items yet. Add your first {config.title.replace(/s$/, "").toLowerCase()} below.
+        </div>
+      )}
+
       <button
+        type="button"
         onClick={() => openEditor(createEmptyRow())}
-        className="w-full rounded-lg border border-dashed border-zinc-300 bg-zinc-50 px-6 py-4 text-xs font-semibold text-zinc-700 transition hover:border-zinc-400 hover:bg-zinc-100 flex items-center justify-center gap-2"
+        className="flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-dashed border-zinc-300 bg-white text-xs font-semibold text-zinc-700 transition hover:border-zinc-400 hover:bg-zinc-50"
       >
         <Plus size={16} />
         Add New {config.title.replace(/s$/, "")}
@@ -359,67 +372,76 @@ export function CollectionSectionEditor({ config, addToast }: CollectionSectionE
 
       {editing && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          onClick={() => {
-            setEditing(null);
-            setOriginalEditing(null);
-          }}
-          onWheel={(e) => e.stopPropagation()}
+          className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-6"
+          role="dialog"
+          aria-modal="true"
+          aria-label={`${String(editing.id) ? "Edit" : "New"} ${config.title.replace(/s$/, "")}`}
         >
-          <div className="absolute inset-0 bg-zinc-900/40 backdrop-blur-sm" />
           <div
-            onClick={(event) => event.stopPropagation()}
-            onWheel={(e) => e.stopPropagation()}
-            className="admin-modal-scroll relative max-h-[90vh] w-full max-w-3xl overflow-y-auto overscroll-contain rounded-xl border border-zinc-200 bg-white p-6 shadow-xl"
-          >
-            <div className="mb-6 flex items-center justify-between border-b border-zinc-200 pb-4">
-              <div>
-                <h3 className="text-lg font-semibold text-zinc-900">
+            className="absolute inset-0 bg-zinc-900/50 backdrop-blur-sm"
+            onClick={() => {
+              if (saving) return;
+              setEditing(null);
+              setOriginalEditing(null);
+            }}
+          />
+          <div className="admin-sheet-in relative flex max-h-[100dvh] w-full flex-col overflow-hidden bg-white shadow-2xl max-sm:h-[100dvh] sm:max-h-[90dvh] sm:max-w-3xl sm:rounded-2xl sm:border sm:border-zinc-200">
+            <div className="flex shrink-0 items-center justify-between gap-3 border-b border-zinc-200 px-4 py-3 sm:px-6 sm:py-4">
+              <div className="min-w-0">
+                <h3 className="truncate text-base font-semibold text-zinc-900 sm:text-lg">
                   {String(editing.id) ? "Edit" : "New"} {config.title.replace(/s$/, "")}
                 </h3>
-                <p className="text-xs text-zinc-500 mt-1">Fill in the details below</p>
+                <p className="text-xs text-zinc-500">Fill in the details below</p>
               </div>
               <button
+                type="button"
+                aria-label="Close"
+                disabled={saving}
                 onClick={() => {
                   setEditing(null);
                   setOriginalEditing(null);
                 }}
-                className="rounded-md p-2 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-700"
+                className="-mr-2 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-zinc-500 hover:bg-zinc-100 hover:text-zinc-800 disabled:opacity-50"
               >
                 <X size={18} />
               </button>
             </div>
 
-            <SectionForm fields={config.fields} data={editing} onChange={setEditing} addToast={addToast} />
+            <div className="admin-modal-scroll min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-5 sm:px-6 sm:py-6">
+              <SectionForm fields={config.fields} data={editing} onChange={setEditing} addToast={addToast} />
+            </div>
 
-            <div className="sticky bottom-0 mt-8 -mx-6 border-t border-zinc-200 bg-white px-6 py-4">
-              <div className="flex items-center justify-between gap-3">
-                <p className="text-xs text-zinc-500">{hasRecordChanged ? "Unsaved changes" : "No changes yet"}</p>
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={() => upsertRow(editing)}
-                    disabled={saving || !hasRecordChanged}
-                    className="inline-flex items-center gap-2 rounded-md bg-zinc-900 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-zinc-800 disabled:opacity-50"
-                  >
-                    {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
-                    {saving ? "Saving..." : "Save Item"}
-                  </button>
-                  <button
-                    onClick={() => {
-                      setEditing(null);
-                      setOriginalEditing(null);
-                    }}
-                    className="rounded-md border border-zinc-300 px-4 py-2.5 text-xs font-semibold text-zinc-700 transition hover:bg-zinc-100"
-                  >
-                    Cancel
-                  </button>
-                </div>
+            <div className="flex shrink-0 flex-col-reverse items-stretch gap-3 border-t border-zinc-200 bg-white px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-4">
+              <p className="flex items-center gap-2 text-xs text-zinc-500">
+                <span className={`h-2 w-2 rounded-full ${hasRecordChanged ? "bg-amber-500" : "bg-zinc-300"}`} />
+                {hasRecordChanged ? "Unsaved changes" : "No changes yet"}
+              </p>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  disabled={saving}
+                  onClick={() => {
+                    setEditing(null);
+                    setOriginalEditing(null);
+                  }}
+                  className="inline-flex h-10 flex-1 items-center justify-center rounded-lg border border-zinc-300 bg-white px-4 text-xs font-semibold text-zinc-700 transition hover:bg-zinc-100 disabled:opacity-50 sm:flex-none"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={() => upsertRow(editing)}
+                  disabled={saving || !hasRecordChanged}
+                  className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-lg bg-zinc-900 px-5 text-xs font-semibold text-white transition hover:bg-zinc-800 disabled:opacity-50 sm:flex-none"
+                >
+                  {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
+                  {saving ? "Saving..." : "Save Item"}
+                </button>
               </div>
             </div>
           </div>
         </div>
       )}
-
       {deletingRow && (
         <ConfirmModal
           isOpen={true}
