@@ -4,7 +4,10 @@ import { Loader2, RotateCcw, Save } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
 import { SectionForm } from "@/app/admin/components/sections/SectionForm";
-import { resolvePendingUploads } from "@/lib/admin/uploads";
+import { resolvePendingUploads, type UploadProgress } from "@/lib/admin/uploads";
+import { getMissingRequiredFields, getSaveBlocker } from "@/lib/admin/fieldRules";
+import { UploadProgressBar, uploadButtonLabel } from "@/app/admin/components/UploadProgressBar";
+import { useReportUnsaved } from "@/hooks/useUnsavedChanges";
 import type { SectionConfig, SectionRecord } from "@/lib/admin/types";
 
 type SingleSectionEditorProps = {
@@ -17,6 +20,8 @@ export function SingleSectionEditor({ config, addToast }: SingleSectionEditorPro
   const [originalData, setOriginalData] = useState<SectionRecord | null>(null);
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [showErrors, setShowErrors] = useState(false);
+  const [progress, setProgress] = useState<UploadProgress | null>(null);
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -47,12 +52,24 @@ export function SingleSectionEditor({ config, addToast }: SingleSectionEditorPro
     loadData();
   }, [loadData]);
 
+  const isDirty = data && originalData ? JSON.stringify(data) !== JSON.stringify(originalData) : false;
+  useReportUnsaved(`single:${config.section}`, isDirty);
+
+  const missingFields = data ? getMissingRequiredFields(config.fields, data) : [];
+
   const handleSave = async () => {
     if (!data) return;
 
+    const blocker = getSaveBlocker(config.fields, data);
+    if (blocker) {
+      setShowErrors(true);
+      addToast("error", blocker);
+      return;
+    }
+
     setSaving(true);
     try {
-      const payloadToSave = await resolvePendingUploads(data, config.fields);
+      const payloadToSave = await resolvePendingUploads(data, config.fields, setProgress);
 
       const res = await fetch(`/api/admin/${config.section}`, {
         method: "PUT",
@@ -63,11 +80,13 @@ export function SingleSectionEditor({ config, addToast }: SingleSectionEditorPro
       if (!res.ok) throw new Error(payload.error ?? "Save failed");
       setData(payload as SectionRecord);
       setOriginalData(payload as SectionRecord);
+      setShowErrors(false);
       addToast("success", `${config.title} saved successfully`);
     } catch (error) {
       addToast("error", error instanceof Error ? error.message : "Save failed");
     } finally {
       setSaving(false);
+      setProgress(null);
     }
   };
 
@@ -90,16 +109,21 @@ export function SingleSectionEditor({ config, addToast }: SingleSectionEditorPro
 
   if (!data) return null;
 
-  const isDirty = originalData ? JSON.stringify(data) !== JSON.stringify(originalData) : false;
-
   const handleDiscard = () => {
     if (originalData) setData(originalData);
+    setShowErrors(false);
   };
 
   return (
     <div className="space-y-6">
       <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm sm:p-6 lg:p-8">
-        <SectionForm fields={config.fields} data={data} onChange={setData} addToast={addToast} />
+        <SectionForm
+          fields={config.fields}
+          data={data}
+          onChange={setData}
+          addToast={addToast}
+          invalidFields={showErrors ? missingFields : []}
+        />
       </div>
 
       <div
@@ -108,6 +132,11 @@ export function SingleSectionEditor({ config, addToast }: SingleSectionEditorPro
         }`}
         aria-hidden={!isDirty}
       >
+        {progress ? (
+          <div className="mx-auto mb-2 max-w-3xl rounded-xl border border-zinc-200 bg-white/95 px-4 py-3 shadow-lg backdrop-blur">
+            <UploadProgressBar progress={progress} />
+          </div>
+        ) : null}
         <div className="mx-auto flex max-w-3xl items-center justify-between gap-3 rounded-xl border border-zinc-200 bg-white/95 p-2.5 pl-4 shadow-xl backdrop-blur">
           <p className="flex items-center gap-2 text-xs font-medium text-zinc-600">
             <span className="h-2 w-2 rounded-full bg-amber-500" />
@@ -133,7 +162,7 @@ export function SingleSectionEditor({ config, addToast }: SingleSectionEditorPro
               className="inline-flex h-10 items-center gap-2 rounded-lg bg-zinc-900 px-4 text-xs font-semibold text-white shadow-sm transition hover:bg-zinc-800 disabled:opacity-50"
             >
               {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
-              {saving ? "Saving..." : "Save Changes"}
+              {saving ? uploadButtonLabel(progress) : "Save Changes"}
             </button>
           </div>
         </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   DashboardOverview,
@@ -8,6 +8,7 @@ import {
   ToastContainer,
   TopBar,
 } from "@/app/admin/components";
+import { ConfirmModal } from "@/app/admin/components/ConfirmModal";
 import {
   CollectionSectionEditor,
   SectionBuilderEditor,
@@ -15,15 +16,18 @@ import {
 } from "@/app/admin/components/sections";
 import { useAdminToast } from "@/hooks/useAdminToast";
 import { useScrollLock } from "@/hooks/useScrollLock";
+import { clearUnsavedChanges, hasUnsavedChanges, useBeforeUnloadGuard } from "@/hooks/useUnsavedChanges";
 import { SECTION_CONFIGS } from "@/lib/admin/config";
 import type { AdminSection } from "@/lib/admin/sections";
 
 export default function AdminDashboard() {
   const [activeSection, setActiveSection] = useState<AdminSection | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
   const router = useRouter();
   const { toasts, addToast, dismissToast } = useAdminToast();
-  const mainRef = useRef<HTMLElement>(null);
+
+  useBeforeUnloadGuard();
 
   // Lock scrolling behind the mobile drawer
   useScrollLock(sidebarOpen);
@@ -48,18 +52,29 @@ export default function AdminDashboard() {
     [activeSection]
   );
 
-  const handleLogout = async () => {
-    try {
-      await fetch("/api/admin/logout", { method: "POST" });
-    } finally {
-      router.push("/admin/login");
+  /** Runs `action` now, or asks first if an editor has unsaved changes. */
+  const guard = (action: () => void) => {
+    if (hasUnsavedChanges()) {
+      setPendingAction(() => action);
+      return;
     }
+    action();
   };
 
-  const handleNavigation = (section: AdminSection) => {
-    setActiveSection(section);
-    setSidebarOpen(false);
-  };
+  const goTo = (section: AdminSection | null) =>
+    guard(() => {
+      setActiveSection(section);
+      setSidebarOpen(false);
+    });
+
+  const handleLogout = () =>
+    guard(async () => {
+      try {
+        await fetch("/api/admin/logout", { method: "POST" });
+      } finally {
+        router.push("/admin/login");
+      }
+    });
 
   return (
     <div className="min-h-dvh bg-zinc-100 text-zinc-900">
@@ -77,11 +92,8 @@ export default function AdminDashboard() {
         activeSection={activeSection}
         sidebarOpen={sidebarOpen}
         onCloseSidebar={() => setSidebarOpen(false)}
-        onOpenDashboard={() => {
-          setActiveSection(null);
-          setSidebarOpen(false);
-        }}
-        onNavigate={handleNavigation}
+        onOpenDashboard={() => goTo(null)}
+        onNavigate={(section) => goTo(section)}
         onLogout={handleLogout}
       />
 
@@ -90,16 +102,15 @@ export default function AdminDashboard() {
           activeSection={activeSection}
           config={config}
           onOpenSidebar={() => setSidebarOpen(true)}
-          onBack={() => setActiveSection(null)}
+          onBack={() => goTo(null)}
         />
 
         <main
-          ref={mainRef}
           key={activeSection ?? "dashboard"}
           className="admin-main admin-fade-in mx-auto w-full max-w-6xl flex-1 px-4 pb-28 pt-5 sm:px-6 sm:pt-6 lg:px-8 lg:pt-8"
         >
           {!config ? (
-            <DashboardOverview onNavigate={handleNavigation} />
+            <DashboardOverview onNavigate={(section) => goTo(section)} />
           ) : config.section === "section_order" ? (
             <SectionBuilderEditor addToast={addToast} />
           ) : config.mode === "single" ? (
@@ -109,6 +120,21 @@ export default function AdminDashboard() {
           )}
         </main>
       </div>
+
+      <ConfirmModal
+        isOpen={pendingAction !== null}
+        onClose={() => setPendingAction(null)}
+        onConfirm={() => {
+          const action = pendingAction;
+          clearUnsavedChanges();
+          setPendingAction(null);
+          action?.();
+        }}
+        title="Discard unsaved changes?"
+        message="You have changes that haven't been saved. If you leave now, they will be lost."
+        confirmText="Discard changes"
+        cancelText="Keep editing"
+      />
     </div>
   );
 }

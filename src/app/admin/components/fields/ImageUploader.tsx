@@ -7,6 +7,7 @@ import { Eye, Upload, X } from "lucide-react";
 import { useState, type ChangeEvent } from "react";
 
 import { cn } from "@/lib/utils";
+import { validateMediaFile } from "@/lib/admin/fieldRules";
 import { ConfirmModal } from "@/app/admin/components/ConfirmModal";
 
 
@@ -40,6 +41,12 @@ export function ImageUploader({
   const handleSelect = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
+    const problem = validateMediaFile(file, "image");
+    if (problem) {
+      notify?.("error", problem);
+      event.target.value = "";
+      return;
+    }
     const previewUrl = URL.createObjectURL(file);
     onSelectFile(file, previewUrl);
     event.target.value = "";

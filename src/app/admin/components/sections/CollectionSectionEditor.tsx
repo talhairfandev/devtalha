@@ -33,8 +33,12 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { SectionForm } from "@/app/admin/components/sections/SectionForm";
 import { ConfirmModal } from "@/app/admin/components/ConfirmModal";
 import { useScrollLock } from "@/hooks/useScrollLock";
-import { resolvePendingUploads, getRecordStorageImages } from "@/lib/admin/uploads";
+import { resolvePendingUploads, getRecordStorageImages, type UploadProgress } from "@/lib/admin/uploads";
+import { UploadProgressBar, uploadButtonLabel } from "@/app/admin/components/UploadProgressBar";
 import type { SectionConfig, SectionRecord } from "@/lib/admin/types";
+import { getMissingRequiredFields, getSaveBlocker } from "@/lib/admin/fieldRules";
+import { useReportUnsaved } from "@/hooks/useUnsavedChanges";
+import { isVideoUrl } from "@/lib/media";
 
 
 type SortableRowProps = {
@@ -56,7 +60,8 @@ function SortableRow({ row, index, totalRows, onEdit, onDelete }: SortableRowPro
 
   const title = String(row.title ?? row.number ?? row.label ?? `Item ${index + 1}`);
   const subtitle = String(row.client ?? row.email ?? row.description ?? "").slice(0, 80);
-  const imgUrl = String(row.image_url ?? "");
+  const firstMedia = row.image_url ?? (Array.isArray(row.images) ? row.images[0] : "");
+  const imgUrl = typeof firstMedia === "string" ? firstMedia.trim() : "";
 
   return (
     <div
@@ -79,14 +84,11 @@ function SortableRow({ row, index, totalRows, onEdit, onDelete }: SortableRowPro
 
         {imgUrl && (
           <div className="relative hidden h-14 w-14 shrink-0 overflow-hidden rounded-lg border border-zinc-200 bg-zinc-100 sm:block">
-            <Image
-              src={imgUrl}
-              alt=""
-              fill
-              unoptimized
-              sizes="56px"
-              className="object-cover"
-            />
+            {isVideoUrl(imgUrl) ? (
+              <video src={imgUrl} muted playsInline preload="metadata" className="h-full w-full object-cover" />
+            ) : (
+              <Image src={imgUrl} alt="" fill unoptimized sizes="56px" className="object-cover" />
+            )}
           </div>
         )}
 
@@ -135,23 +137,47 @@ export function CollectionSectionEditor({ config, addToast }: CollectionSectionE
   const [saving, setSaving] = useState(false);
   const [deletingRow, setDeletingRow] = useState<SectionRecord | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [confirmDiscard, setConfirmDiscard] = useState(false);
+  const [showErrors, setShowErrors] = useState(false);
+  const [progress, setProgress] = useState<UploadProgress | null>(null);
 
 
   // Lock the admin shell scroll while the editor sheet is open
   useScrollLock(Boolean(editing));
 
-  // Close the editor with Escape
+  const hasRecordChanged = useMemo(
+    () =>
+      editing && originalEditing
+        ? JSON.stringify(editing) !== JSON.stringify(originalEditing)
+        : false,
+    [editing, originalEditing]
+  );
+
+  useReportUnsaved(`collection:${config.section}`, hasRecordChanged);
+
+  const closeEditor = useCallback(() => {
+    setEditing(null);
+    setOriginalEditing(null);
+    setConfirmDiscard(false);
+    setShowErrors(false);
+  }, []);
+
+  /** Close the editor, asking first if there are unsaved edits. */
+  const requestClose = useCallback(() => {
+    if (saving) return;
+    if (hasRecordChanged) setConfirmDiscard(true);
+    else closeEditor();
+  }, [saving, hasRecordChanged, closeEditor]);
+
+  // Close the editor with Escape (the discard dialog handles its own Escape)
   useEffect(() => {
-    if (!editing || saving) return;
+    if (!editing || confirmDiscard) return;
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setEditing(null);
-        setOriginalEditing(null);
-      }
+      if (event.key === "Escape") requestClose();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [editing, saving]);
+  }, [editing, confirmDiscard, requestClose]);
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
     useSensor(KeyboardSensor, {
@@ -192,6 +218,13 @@ export function CollectionSectionEditor({ config, addToast }: CollectionSectionE
     }) as SectionRecord;
 
   const upsertRow = async (record: SectionRecord) => {
+    const blocker = getSaveBlocker(config.fields, record);
+    if (blocker) {
+      setShowErrors(true);
+      addToast("error", blocker);
+      return;
+    }
+
     const id = String(record.id ?? "");
     const isNew = !id;
     const method = isNew ? "POST" : "PUT";
@@ -204,7 +237,7 @@ export function CollectionSectionEditor({ config, addToast }: CollectionSectionE
 
     setSaving(true);
     try {
-      const resolvedRecord = await resolvePendingUploads(record, config.fields);
+      const resolvedRecord = await resolvePendingUploads(record, config.fields, setProgress);
       const payloadRecord = { ...resolvedRecord };
       if (isNew && !String(payloadRecord.id ?? "").trim()) {
         delete payloadRecord.id;
@@ -220,14 +253,14 @@ export function CollectionSectionEditor({ config, addToast }: CollectionSectionE
       const saved = payload as SectionRecord;
       if (isNew) setRows((current) => current.map((row) => (String(row.id) === tempId ? saved : row)));
       else setRows((current) => current.map((row) => (String(row.id) === String(saved.id) ? saved : row)));
-      setEditing(null);
-      setOriginalEditing(null);
+      closeEditor();
       addToast("success", isNew ? "Item created" : "Item updated");
     } catch (error) {
       setRows(previousRows);
       addToast("error", error instanceof Error ? error.message : "Save failed");
     } finally {
       setSaving(false);
+      setProgress(null);
     }
   };
 
@@ -264,17 +297,10 @@ export function CollectionSectionEditor({ config, addToast }: CollectionSectionE
 
 
   const openEditor = (record: SectionRecord) => {
+    setShowErrors(false);
     setEditing(record);
     setOriginalEditing(record);
   };
-
-  const hasRecordChanged = useMemo(
-    () =>
-      editing && originalEditing
-        ? JSON.stringify(editing) !== JSON.stringify(originalEditing)
-        : false,
-    [editing, originalEditing]
-  );
 
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
@@ -379,11 +405,7 @@ export function CollectionSectionEditor({ config, addToast }: CollectionSectionE
         >
           <div
             className="absolute inset-0 bg-zinc-900/50 backdrop-blur-sm"
-            onClick={() => {
-              if (saving) return;
-              setEditing(null);
-              setOriginalEditing(null);
-            }}
+            onClick={requestClose}
           />
           <div className="admin-sheet-in relative flex max-h-[100dvh] w-full flex-col overflow-hidden bg-white shadow-2xl max-sm:h-[100dvh] sm:max-h-[90dvh] sm:max-w-3xl sm:rounded-2xl sm:border sm:border-zinc-200">
             <div className="flex shrink-0 items-center justify-between gap-3 border-b border-zinc-200 px-4 py-3 sm:px-6 sm:py-4">
@@ -397,10 +419,7 @@ export function CollectionSectionEditor({ config, addToast }: CollectionSectionE
                 type="button"
                 aria-label="Close"
                 disabled={saving}
-                onClick={() => {
-                  setEditing(null);
-                  setOriginalEditing(null);
-                }}
+                onClick={requestClose}
                 className="-mr-2 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-zinc-500 hover:bg-zinc-100 hover:text-zinc-800 disabled:opacity-50"
               >
                 <X size={18} />
@@ -408,8 +427,16 @@ export function CollectionSectionEditor({ config, addToast }: CollectionSectionE
             </div>
 
             <div className="admin-modal-scroll min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-5 sm:px-6 sm:py-6">
-              <SectionForm fields={config.fields} data={editing} onChange={setEditing} addToast={addToast} />
+              <SectionForm
+                fields={config.fields}
+                data={editing}
+                onChange={setEditing}
+                addToast={addToast}
+                invalidFields={showErrors ? getMissingRequiredFields(config.fields, editing) : []}
+              />
             </div>
+
+            <UploadProgressBar progress={progress} className="shrink-0 border-t border-zinc-200 bg-zinc-50 px-4 py-3 sm:px-6" />
 
             <div className="flex shrink-0 flex-col-reverse items-stretch gap-3 border-t border-zinc-200 bg-white px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-4">
               <p className="flex items-center gap-2 text-xs text-zinc-500">
@@ -420,10 +447,7 @@ export function CollectionSectionEditor({ config, addToast }: CollectionSectionE
                 <button
                   type="button"
                   disabled={saving}
-                  onClick={() => {
-                    setEditing(null);
-                    setOriginalEditing(null);
-                  }}
+                  onClick={requestClose}
                   className="inline-flex h-10 flex-1 items-center justify-center rounded-lg border border-zinc-300 bg-white px-4 text-xs font-semibold text-zinc-700 transition hover:bg-zinc-100 disabled:opacity-50 sm:flex-none"
                 >
                   Cancel
@@ -435,13 +459,23 @@ export function CollectionSectionEditor({ config, addToast }: CollectionSectionE
                   className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-lg bg-zinc-900 px-5 text-xs font-semibold text-white transition hover:bg-zinc-800 disabled:opacity-50 sm:flex-none"
                 >
                   {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
-                  {saving ? "Saving..." : "Save Item"}
+                  {saving ? uploadButtonLabel(progress) : "Save Item"}
                 </button>
               </div>
             </div>
           </div>
         </div>
       )}
+      <ConfirmModal
+        isOpen={confirmDiscard}
+        onClose={() => setConfirmDiscard(false)}
+        onConfirm={closeEditor}
+        title="Discard unsaved changes?"
+        message="Your edits to this item haven't been saved. Closing now will lose them."
+        confirmText="Discard changes"
+        cancelText="Keep editing"
+      />
+
       {deletingRow && (
         <ConfirmModal
           isOpen={true}

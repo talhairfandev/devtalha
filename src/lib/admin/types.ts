@@ -49,6 +49,16 @@ export type FieldConfig = {
   min?: number;
   max?: number;
   step?: number;
+  /** Must be non-empty before saving */
+  required?: boolean;
+  /** Only show this field when another field has one of these values */
+  showWhen?: { key: string; equals: string | string[] };
+  /** Groups consecutive fields under a heading */
+  group?: string;
+  /** Live format validation */
+  format?: "email" | "url" | "link";
+  /** Soft character limit: shows a counter, warns when exceeded */
+  maxLength?: number;
 };
 
 export type SectionMode = "single" | "collection";

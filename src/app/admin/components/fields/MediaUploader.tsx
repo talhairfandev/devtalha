@@ -6,6 +6,7 @@ import { Upload, X, Eye } from "lucide-react";
 import { useState, type ChangeEvent } from "react";
 import { isVideoUrl } from "@/lib/media";
 import { cn } from "@/lib/utils";
+import { validateMediaFile } from "@/lib/admin/fieldRules";
 import { ConfirmModal } from "@/app/admin/components/ConfirmModal";
 
 type MediaUploaderProps = {
@@ -43,6 +44,12 @@ export function MediaUploader({
   const handleSelect = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
+    const problem = validateMediaFile(file, "media");
+    if (problem) {
+      notify?.("error", problem);
+      event.target.value = "";
+      return;
+    }
     const previewUrl = URL.createObjectURL(file);
     onSelectFile(file, previewUrl);
     event.target.value = "";
